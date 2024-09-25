@@ -6,7 +6,7 @@ import os
 import socket
 import sys
 from dataclasses import dataclass
-from typing import Self
+from typing import Self, Callable, ClassVar
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -29,13 +29,24 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, console=console)],
 )
 
+
 @dataclass
 class SSHPacket:
+    """
+    Each packet is in the following format on the wire:
+    uint32    packet_length
+    byte      padding_length
+    byte[n1]  payload; n1 = packet_length - padding_length - 1
+    byte[n2]  random padding; n2 = padding_length
+    byte[m]   mac (Message Authentication Code - MAC); m = mac_length
+    """
     length: int
     padding_length: int
     payload: bytes
     random_padding: bytes
-    mac: bytes = bytes()
+    local_to_remote_sequence_number: ClassVar[int] = 0
+    remote_to_local_sequence_number: ClassVar[int] = 0
+    logger: ClassVar[logging.Logger] = logging.getLogger("SSHPacket")
 
     @classmethod
     def create_from_bytes(cls, payload: bytes) -> Self:
@@ -51,11 +62,13 @@ class SSHPacket:
         )
 
     @classmethod
-    def request(cls, source: io.BufferedIOBase) -> Self:
-        length = int.from_bytes(source.read(4), 'big')
-        padding_length = int.from_bytes(source.read(1), 'big')
-        payload = source.read(length - padding_length - 1)
-        random_padding = source.read(padding_length)
+    def request(cls, source: 'SSHClient') -> Self:
+        length = int.from_bytes(source.recv(4), 'big')
+        if length > 100000:
+            cls.logger.warning(f'Packet is reported very long: {length}. Probably a decoding error')
+        padding_length = int.from_bytes(source.recv(1), 'big')
+        payload = source.recv(length - padding_length - 1)
+        random_padding = source.recv(padding_length)
         return cls(
             length=length,
             padding_length=padding_length,
@@ -63,11 +76,50 @@ class SSHPacket:
             random_padding=random_padding,
         )
 
+    @classmethod
+    def request_encrypted(cls, source: 'SSHClient', decryptor: AEADDecryptionContext, mac_applicator: Callable[[bytes], bytes]) -> Self:
+        encrypted_length = source.recv(4)
+        decrypted_length_bytes = decryptor.update(encrypted_length)
+        length = int.from_bytes(decrypted_length_bytes, 'big')
+        encrypted_padding_length = source.recv(1)
+        decrypted_padding_length_bytes = decryptor.update(encrypted_padding_length)
+        padding_length = int.from_bytes(decrypted_padding_length_bytes, 'big')
+        encrypted_payload = source.recv(length - padding_length - 1)
+        decrypted_payload = decryptor.update(encrypted_payload)
+        encrypted_random_padding = source.recv(padding_length)
+        random_padding = decryptor.update(encrypted_random_padding)
+        mac = source.recv(len(mac_applicator(b'')))
+        expected_mac = mac_applicator(decrypted_length_bytes + decrypted_padding_length_bytes + decrypted_payload + random_padding)
+        assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}"
+        return cls(
+            length=length,
+            padding_length=padding_length,
+            payload=decrypted_payload,
+            random_padding=random_padding,
+        )
 
-    def set_mac(self, derived_key: bytes) -> bytes:
-        self.mac = hmac.new(derived_key, self.payload, hashlib.sha1).digest()
-        return self.mac
+    def to_bytes(self) -> bytes:
+        return (
+                self.length.to_bytes(4, 'big')
+                + self.padding_length.to_bytes(1, 'big')
+                + self.payload
+                + self.random_padding
+        )
 
+    def to_encrypted_bytes(self, encryptor: AEADEncryptionContext, mac_applicator: Callable[[bytes], bytes]) -> bytes:
+        encrypted_length = encryptor.update(self.length.to_bytes(4, 'big'))
+        encrypted_padding_length = encryptor.update(self.padding_length.to_bytes(1, 'big'))
+        encrypted_payload = encryptor.update(self.payload)
+        encrypted_random_padding = encryptor.update(self.random_padding)
+        # mac = MAC(key, sequence_number || unencrypted_packet)
+        unencrypted_packet = (
+                self.length.to_bytes(4, 'big') +
+                self.padding_length.to_bytes(1, 'big') +
+                self.payload +
+                self.random_padding
+        )
+        mac = mac_applicator(unencrypted_packet)
+        return encrypted_length + encrypted_padding_length + encrypted_payload + encrypted_random_padding + mac
 
 
 class SSHClient:
@@ -87,6 +139,8 @@ class SSHClient:
     cipher: Cipher
     encryptor: AEADEncryptionContext
     decryptor: AEADDecryptionContext
+    exchange_hash_h: bytes
+    shared_secret_k: bytes
 
     def __init__(self, host, port):
         self.s = None
@@ -127,103 +181,26 @@ class SSHClient:
         assert response == SSHConstants.SSH_MSG_SERVICE_ACCEPT.to_bytes() + service_name.encode(
             'utf-8'), "Service not accepted"
 
-    def send_encrypted_ssh_packet(self, payload: bytes) -> None:
-        # 4 (packet_length) + 1 (padding_length) + len(payload) + len(random padding) % 8 = 0
-        # packet_length - padding_length - 1 = n1
-        n1 = len(payload)
-        k = 0  # Can vary this to thwart traffic analysis
-        padding_length = 3 + (8 - (n1 % 8)) + 8 * k
-        packet_length = n1 + padding_length + 1
-        self.packet_logger.debug(f'packet_length: {packet_length}, padding_length: {padding_length}')
-        self.packet_logger.debug(f'client >> server {repr(payload)}')
-        # Encrypt the length and padding
-        encrypted_length = self.encrypt(packet_length.to_bytes(4, 'big'))
-        encrypted_padding = self.encrypt(padding_length.to_bytes(1, 'big'))
-        self.send(encrypted_length)
-        self.send(encrypted_padding)
-        # Encrypt the payload
-        encrypted_payload = self.encrypt(payload)
-        self.send(encrypted_payload)
-        # Encrypt the random padding
-        random_padding = os.urandom(padding_length)
-        encrypted_random_padding = self.encrypt(random_padding)
-        self.send(encrypted_random_padding)
-        if self.mac_algorthm is not None:
-            mac = self.create_hmac(self.derived_key, payload)
-            self.logger.debug(f'MAC: {repr(mac)}')
-            self.send(mac)
-
-    def recv_encrypted_ssh_packet(self) -> bytes:
-        """
-        Each packet is in the following format:
-        uint32    packet_length
-        byte      padding_length
-        byte[n1]  payload; n1 = packet_length - padding_length - 1
-        byte[n2]  random padding; n2 = padding_length
-        byte[m]   mac (Message Authentication Code - MAC); m = mac_length
-        """
-        # Decrypt the length
-        encrypted_length = self.recv(4)
-        length = int.from_bytes(self.decrypt(encrypted_length), 'big')
-        # Decrypt the padding
-        encrypted_padding = self.recv(1)
-        padding_length = int.from_bytes(self.decrypt(encrypted_padding), 'big')
-        # Decrypt the payload
-        payload = self.recv(length - padding_length - 1)
-        # Decrypt the random padding
-        random_padding = self.recv(padding_length)
-        # Verify the MAC
-        if self.mac_algorthm is not None:
-            mac = self.recv(len(self.derived_key))
-            self.packet_logger.debug(f'MAC: {repr(mac)}')
-            expected_mac = self.create_hmac(self.derived_key, payload)
-            assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}| {self.derived_key}"
-        self.packet_logger.debug(f'client << server {repr(payload)}')
-        return payload
-
-
-
-
     def send_ssh_packet(self, payload: bytes) -> None:
-        # 4 (packet_length) + 1 (padding_length) + len(payload) + len(random padding) % 8 = 0
-        # packet_length - padding_length - 1 = n1
-        n1 = len(payload)
-        k = 0  # Can vary this to thwart traffic analysis
-        padding_length = 3 + (8 - (n1 % 8)) + 8 * k
-        packet_length = n1 + padding_length + 1
-        self.packet_logger.debug(f'packet_length: {packet_length}, padding_length: {padding_length}')
-        self.packet_logger.debug(f'client >> server {repr(payload)}')
-        self.send(packet_length.to_bytes(4, 'big'))
-        self.send(padding_length.to_bytes(1, 'big'))
-        self.send(payload)
-        self.send(os.urandom(padding_length))
-        if self.mac_algorthm is not None:
-            mac = self.create_hmac(self.derived_key, payload)
-            self.logger.debug(f'MAC: {repr(mac)}')
-            self.send(mac)
+        packet = SSHPacket.create_from_bytes(payload)
+        SSHPacket.local_to_remote_sequence_number += 1
+        self.send(packet.to_bytes())
+
+    def send_encrypted_ssh_packet(self, payload: bytes) -> None:
+        self.packet_logger.info(f'Sending encrypted packet: {payload}')
+        packet = SSHPacket.create_from_bytes(payload)
+        SSHPacket.local_to_remote_sequence_number += 1
+        encrypted_packet = packet.to_encrypted_bytes(self.encryptor, self.mac_applicator)
+        self.send(encrypted_packet)
+
+    def mac_applicator(self, data: bytes) -> bytes:
+        sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
+        return self.create_hmac(self.derived_key, sequence_ored_with_data)
 
     def recv_ssh_packet(self) -> bytes:
-        """
-        Each packet is in the following format:
-        uint32    packet_length
-        byte      padding_length
-        byte[n1]  payload; n1 = packet_length - padding_length - 1
-        byte[n2]  random padding; n2 = padding_length
-        byte[m]   mac (Message Authentication Code - MAC); m = mac_length
-        """
-        packet_length = int.from_bytes(self.recv(4), 'big')
-        if packet_length > 100000:
-            self.logger.warning(f'Packet is reported very long: {packet_length}. Probably a decoding error')
-        padding_length = int.from_bytes(self.recv(1), 'big')
-        payload = self.recv(packet_length - padding_length - 1)
-        random_padding = self.recv(padding_length)
-        if self.mac_algorthm is not None:
-            mac = self.recv(len(self.derived_key))
-            self.packet_logger.debug(f'MAC: {repr(mac)}')
-            expected_mac = self.create_hmac(self.derived_key, payload)
-            assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}| {self.derived_key}"
-        self.packet_logger.debug(f'client << server {repr(payload)}')
-        return payload
+        packet = SSHPacket.request(self)
+        SSHPacket.remote_to_local_sequence_number += 1
+        return packet.payload
 
     def my_key_exchange(self):
         """ Sends the initial key exchange message to the server with format """
@@ -305,6 +282,8 @@ class SSHClient:
         hopefully_new_keys = self.recv_ssh_packet()
         self.logger.info(f'New keys: {hopefully_new_keys}')
         assert hopefully_new_keys == SSHConstants.SSH_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
+        # Send the new keys message
+        self.send_ssh_packet(SSHConstants.SSH_MSG_NEWKEYS.to_bytes())
 
     def derive_shared_key(self, server_public_key):
         shared_key = self.private_key.exchange(server_public_key)
@@ -399,6 +378,7 @@ class SSHClient:
 
     def decrypt(self, param: bytes) -> bytes:
         return self.decryptor.update(param)
+
 
 def test_mpint():
     """
