@@ -1,26 +1,25 @@
 import hashlib
 import hmac
 import io
-import os
-import re
-import socket
-import struct
-from dataclasses import dataclass
-from enum import IntEnum
-from typing import ClassVar, Self
-from rich.logging import RichHandler
-from rich.console import Console
-import sys
-from cryptography.hazmat.primitives.asymmetric import dh
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.hmac import HMAC
-
 import logging
+import os
+import socket
+import sys
+from dataclasses import dataclass
+from typing import Self
 
-from zmq.asyncio import Socket
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import dh
+from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
+from cryptography.hazmat.primitives.ciphers.algorithms import AES
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from rich.console import Console
+from rich.logging import RichHandler
+
+from src.constants import SSHConstants
+from src.kex_init_packet import SSHKEXInitPacket
+from src.version import SSHVersion
 
 console = Console()
 logging.basicConfig(
@@ -30,176 +29,44 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, console=console)],
 )
 
-
 @dataclass
-class SSHVersion:
-    proto_version: str
-    software_version: str
-    comments: str = ''
-
-    PATTERN: ClassVar[re.Pattern] = re.compile(
-        r'^SSH-(?P<proto_version>\d+\.\d+)-(?P<software_version>[a-zA-Z0-9_\-.]+)(\s*(?P<comments>.*))?\r?\n$'
-    )
-
-    def __str__(self):
-        return f'SSH-{self.proto_version}-{self.software_version} {self.comments}\r\n'
-
-    def __repr__(self):
-        return f'SSH-{self.proto_version}-{self.software_version} {self.comments}'
+class SSHPacket:
+    length: int
+    padding_length: int
+    payload: bytes
+    random_padding: bytes
+    mac: bytes = bytes()
 
     @classmethod
-    def from_string(cls, data: str) -> Self:
-        match = cls.PATTERN.match(data)
-        if not match:
-            raise ValueError(f'Invalid SSH version string: {data}')
-        return cls(**match.groupdict())
-
-
-@dataclass
-class SSHKEXInitPacket:
-    """
-    Decodes the remote key exchange message with format
-    ```
-    byte         SSH_MSG_KEXINIT
-    byte[16]     cookie (random bytes)
-    name-list    kex_algorithms
-    name-list    server_host_key_algorithms
-    name-list    encryption_algorithms_client_to_server
-    name-list    encryption_algorithms_server_to_client
-    name-list    mac_algorithms_client_to_server
-    name-list    mac_algorithms_server_to_client
-    name-list    compression_algorithms_client_to_server
-    name-list    compression_algorithms_server_to_client
-    name-list    languages_client_to_server
-    name-list    languages_server_to_client
-    boolean      first_kex_packet_follows
-    uint32       0 (reserved for future extension)
-    ```
-    """
-    kex_algorithms: list[str]
-    server_host_key_algorithms: list[str]
-    encryption_algorithms_client_to_server: list[str]
-    encryption_algorithms_server_to_client: list[str]
-    mac_algorithms_client_to_server: list[str]
-    mac_algorithms_server_to_client: list[str]
-    compression_algorithms_client_to_server: list[str]
-    compression_algorithms_server_to_client: list[str]
-    languages_client_to_server: list[str]
-    languages_server_to_client: list[str]
-    first_kex_packet_follows: bool
-    reserved: int
-
-    @classmethod
-    def from_bytes(cls, data: bytes) -> Self:
-        myio = io.BytesIO(data)
-        kex_init = myio.read(1)
-        assert kex_init == bytes([SSHConstants.SSH_MSG_KEXINIT])
-        _cookie = myio.read(16)
-        read_name_list = lambda: myio.read(int.from_bytes(myio.read(4), 'big')).decode('utf-8').split(',')
+    def create_from_bytes(cls, payload: bytes) -> Self:
+        n1 = len(payload)
+        k = 0  # Can vary this to thwart traffic analysis
+        padding_length = 3 + (8 - (n1 % 8)) + 8 * k
+        packet_length = n1 + padding_length + 1
         return cls(
-            kex_algorithms=read_name_list(),
-            server_host_key_algorithms=read_name_list(),
-            encryption_algorithms_client_to_server=read_name_list(),
-            encryption_algorithms_server_to_client=read_name_list(),
-            mac_algorithms_client_to_server=read_name_list(),
-            mac_algorithms_server_to_client=read_name_list(),
-            compression_algorithms_client_to_server=read_name_list(),
-            compression_algorithms_server_to_client=read_name_list(),
-            languages_client_to_server=read_name_list(),
-            languages_server_to_client=read_name_list(),
-            first_kex_packet_follows=myio.read(1) == b'\x01',
-            reserved=int.from_bytes(myio.read(4), 'big')
+            length=packet_length,
+            padding_length=padding_length,
+            payload=payload,
+            random_padding=os.urandom(padding_length),
         )
 
-    def to_bytes(self) -> bytes:
-        myio = io.BytesIO()
-        myio.write(bytes([SSHConstants.SSH_MSG_KEXINIT]))
-        myio.write(os.urandom(16))
-        write_name_list = lambda x: myio.write(struct.pack('>I', len(','.join(x))) + ','.join(x).encode('utf-8'))
-        write_name_list(self.kex_algorithms)
-        write_name_list(self.server_host_key_algorithms)
-        write_name_list(self.encryption_algorithms_client_to_server)
-        write_name_list(self.encryption_algorithms_server_to_client)
-        write_name_list(self.mac_algorithms_client_to_server)
-        write_name_list(self.mac_algorithms_server_to_client)
-        write_name_list(self.compression_algorithms_client_to_server)
-        write_name_list(self.compression_algorithms_server_to_client)
-        write_name_list(self.languages_client_to_server)
-        write_name_list(self.languages_server_to_client)
-        myio.write(b'\x01' if self.first_kex_packet_follows else b'\x00')
-        myio.write(struct.pack('>I', self.reserved))
-        return myio.getvalue()
+    @classmethod
+    def request(cls, source: io.BufferedIOBase) -> Self:
+        length = int.from_bytes(source.read(4), 'big')
+        padding_length = int.from_bytes(source.read(1), 'big')
+        payload = source.read(length - padding_length - 1)
+        random_padding = source.read(padding_length)
+        return cls(
+            length=length,
+            padding_length=padding_length,
+            payload=payload,
+            random_padding=random_padding,
+        )
 
 
-class SSHConstants(IntEnum):
-    """Graciously donated by https://javadoc.io/doc/org.apache.sshd/sshd-common/2.6.0/constant-values.html#org.apache.sshd.common.SshConstants"""
-    SSH2_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT = 1
-    SSH_EXTENDED_DATA_STDERR = 1
-    SSH_MSG_DISCONNECT = 1
-    SSH_OPEN_ADMINISTRATIVELY_PROHIBITED = 1
-    SSH2_DISCONNECT_CONNECTION_LOST = 10
-    SSH_MSG_CHANNEL_FAILURE = 100
-    SSH2_DISCONNECT_BY_APPLICATION = 11
-    SSH2_DISCONNECT_TOO_MANY_CONNECTIONS = 12
-    SSH2_DISCONNECT_AUTH_CANCELLED_BY_USER = 13
-    SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE = 14
-    SSH2_DISCONNECT_ILLEGAL_USER_NAME = 15
-    MSG_KEX_COOKIE_SIZE = 16
-    SSH2_DISCONNECT_PROTOCOL_ERROR = 2
-    SSH_MSG_IGNORE = 2
-    SSH_OPEN_CONNECT_FAILED = 2
-    SSH_MSG_KEXINIT = 20
-    SSH_MSG_NEWKEYS = 21
-    DEFAULT_PORT = 22
-    SSH2_DISCONNECT_KEY_EXCHANGE_FAILED = 3
-    SSH_MSG_UNIMPLEMENTED = 3
-    SSH_OPEN_UNKNOWN_CHANNEL_TYPE = 3
-    SSH_MSG_KEXDH_INIT = 30
-    SSH_MSG_KEX_DH_GEX_REQUEST_OLD = 30
-    SSH_MSG_KEX_FIRST = 30
-    SSH_MSG_KEXDH_REPLY = 31
-    SSH_MSG_KEX_DH_GEX_GROUP = 31
-    SSH_MSG_KEX_DH_GEX_INIT = 32
-    SSH_REQUIRED_PAYLOAD_PACKET_LENGTH_SUPPORT = 32768
-    SSH_MSG_KEX_DH_GEX_REPLY = 33
-    SSH_MSG_KEX_DH_GEX_REQUEST = 34
-    SSH_REQUIRED_TOTAL_PACKET_LENGTH_SUPPORT = 35000
-    SSH2_DISCONNECT_HOST_AUTHENTICATION_FAILED = 4
-    SSH2_DISCONNECT_RESERVED = 4
-    SSH_MSG_DEBUG = 4
-    SSH_OPEN_RESOURCE_SHORTAGE = 4
-    SSH_MSG_KEX_LAST = 49
-    SSH2_DISCONNECT_MAC_ERROR = 5
-    SSH_MSG_SERVICE_REQUEST = 5
-    SSH_PACKET_HEADER_LEN = 5
-    SSH_MSG_USERAUTH_REQUEST = 50
-    SSH_MSG_USERAUTH_FAILURE = 51
-    SSH_MSG_USERAUTH_SUCCESS = 52
-    SSH_MSG_USERAUTH_BANNER = 53
-    SSH2_DISCONNECT_COMPRESSION_ERROR = 6
-    SSH_MSG_SERVICE_ACCEPT = 6
-    SSH_MSG_USERAUTH_INFO_REQUEST = 60
-    SSH_MSG_USERAUTH_PASSWD_CHANGEREQ = 60
-    SSH_MSG_USERAUTH_PK_OK = 60
-    SSH_MSG_USERAUTH_INFO_RESPONSE = 61
-    SSH_MSG_USERAUTH_GSSAPI_MIC = 66
-    SSH2_DISCONNECT_SERVICE_NOT_AVAILABLE = 7
-    SSH2_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED = 8
-    SSH_MSG_GLOBAL_REQUEST = 80
-    SSH_MSG_REQUEST_SUCCESS = 81
-    SSH_MSG_REQUEST_FAILURE = 82
-    SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE = 9
-    SSH_MSG_CHANNEL_OPEN = 90
-    SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 91
-    SSH_MSG_CHANNEL_OPEN_FAILURE = 92
-    SSH_MSG_CHANNEL_WINDOW_ADJUST = 93
-    SSH_MSG_CHANNEL_DATA = 94
-    SSH_MSG_CHANNEL_EXTENDED_DATA = 95
-    SSH_MSG_CHANNEL_EOF = 96
-    SSH_MSG_CHANNEL_CLOSE = 97
-    SSH_MSG_CHANNEL_REQUEST = 98
-    SSH_MSG_CHANNEL_SUCCESS = 99
-
+    def set_mac(self, derived_key: bytes) -> bytes:
+        self.mac = hmac.new(derived_key, self.payload, hashlib.sha1).digest()
+        return self.mac
 
 
 
@@ -210,8 +77,16 @@ class SSHClient:
     bytes_logger: logging.Logger = logging.getLogger("SSH_bytes")
     packet_logger: logging.Logger = logging.getLogger("SSH_packt")
     mac_algorthm: str | None = None
-    mac_key: bytes | None = None
+    derived_key: bytes | None = None
     s: socket.socket | None
+    parameters: dh.DHParameters
+    private_key: dh.DHPrivateKey
+    public_key: dh.DHPublicKey
+    server_public_key: dh.DHPublicKey
+    derived_key: bytes
+    cipher: Cipher
+    encryptor: AEADEncryptionContext
+    decryptor: AEADDecryptionContext
 
     def __init__(self, host, port):
         self.s = None
@@ -220,7 +95,8 @@ class SSHClient:
         self.block_size = 35000
         # self.bytes_logger.setLevel(logging.DEBUG)
 
-    def compute_session_id(self, client_version: bytes, server_version: bytes, kex_init_client: bytes, kex_init_server: bytes,
+    def compute_session_id(self, client_version: bytes, server_version: bytes, kex_init_client: bytes,
+                           kex_init_server: bytes,
                            shared_secret: bytes) -> bytes:
         # Concatenate all the necessary components
         data = client_version + server_version + kex_init_client + kex_init_server + shared_secret
@@ -233,7 +109,6 @@ class SSHClient:
         # Use a simple KDF (this is just an example; a real KDF would be more complex)
         return hmac.new(shared_secret, session_id, hashlib.sha1).digest()[:key_length]
 
-
     def create_hmac(self, key: bytes, message: bytes) -> bytes:
         return hmac.new(key, message, hashlib.sha1).digest()
 
@@ -242,31 +117,78 @@ class SSHClient:
         self.s.connect((self.host, self.port))
         self.logger.info('Connected to server')
         self._exchange_versions()
-        encryption_key = self.my_key_exchange()
+        self.my_key_exchange()
+        self.request_service('ssh-userauth')
 
-        # # Use the derived key for symmetric encryption (AES for example)
-        # cipher = Cipher(algorithms.AES(encryption_key), modes.CFB8(encryption_key[:16]), backend=default_backend())
-        # encryptor = cipher.encryptor()
-        #
-        # # Placeholder: send a command (echo hi)
-        # command_payload = b'echo hi'
-        # encrypted_payload = encryptor.update(command_payload) + encryptor.finalize()
-        # self.send_ssh_packet(encrypted_payload)
-        #
-        # # Placeholder for receiving command output (decryption not handled in this example)
-        # response = self.recv(1024)
-        # self.logger.info(f"Response: {response}")
+    def request_service(self, service_name: str) -> None:
+        self.send_encrypted_ssh_packet(SSHConstants.SSH_MSG_SERVICE_REQUEST.to_bytes() + service_name.encode('utf-8'))
+        response = self.recv_ssh_packet()
+        self.logger.info(f'Response: {response}')
+        assert response == SSHConstants.SSH_MSG_SERVICE_ACCEPT.to_bytes() + service_name.encode(
+            'utf-8'), "Service not accepted"
 
-        # The message SSH_MSG_CHANNEL_CLOSE from server indicates conection must be closed.
+    def send_encrypted_ssh_packet(self, payload: bytes) -> None:
+        # 4 (packet_length) + 1 (padding_length) + len(payload) + len(random padding) % 8 = 0
+        # packet_length - padding_length - 1 = n1
+        n1 = len(payload)
+        k = 0  # Can vary this to thwart traffic analysis
+        padding_length = 3 + (8 - (n1 % 8)) + 8 * k
+        packet_length = n1 + padding_length + 1
+        self.packet_logger.debug(f'packet_length: {packet_length}, padding_length: {padding_length}')
+        self.packet_logger.debug(f'client >> server {repr(payload)}')
+        # Encrypt the length and padding
+        encrypted_length = self.encrypt(packet_length.to_bytes(4, 'big'))
+        encrypted_padding = self.encrypt(padding_length.to_bytes(1, 'big'))
+        self.send(encrypted_length)
+        self.send(encrypted_padding)
+        # Encrypt the payload
+        encrypted_payload = self.encrypt(payload)
+        self.send(encrypted_payload)
+        # Encrypt the random padding
+        random_padding = os.urandom(padding_length)
+        encrypted_random_padding = self.encrypt(random_padding)
+        self.send(encrypted_random_padding)
+        if self.mac_algorthm is not None:
+            mac = self.create_hmac(self.derived_key, payload)
+            self.logger.debug(f'MAC: {repr(mac)}')
+            self.send(mac)
 
-        # keys: bytes = self.recv()
-        # self.logger.debug(f'Keys: {repr(keys)}')
+    def recv_encrypted_ssh_packet(self) -> bytes:
+        """
+        Each packet is in the following format:
+        uint32    packet_length
+        byte      padding_length
+        byte[n1]  payload; n1 = packet_length - padding_length - 1
+        byte[n2]  random padding; n2 = padding_length
+        byte[m]   mac (Message Authentication Code - MAC); m = mac_length
+        """
+        # Decrypt the length
+        encrypted_length = self.recv(4)
+        length = int.from_bytes(self.decrypt(encrypted_length), 'big')
+        # Decrypt the padding
+        encrypted_padding = self.recv(1)
+        padding_length = int.from_bytes(self.decrypt(encrypted_padding), 'big')
+        # Decrypt the payload
+        payload = self.recv(length - padding_length - 1)
+        # Decrypt the random padding
+        random_padding = self.recv(padding_length)
+        # Verify the MAC
+        if self.mac_algorthm is not None:
+            mac = self.recv(len(self.derived_key))
+            self.packet_logger.debug(f'MAC: {repr(mac)}')
+            expected_mac = self.create_hmac(self.derived_key, payload)
+            assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}| {self.derived_key}"
+        self.packet_logger.debug(f'client << server {repr(payload)}')
+        return payload
+
+
+
 
     def send_ssh_packet(self, payload: bytes) -> None:
         # 4 (packet_length) + 1 (padding_length) + len(payload) + len(random padding) % 8 = 0
         # packet_length - padding_length - 1 = n1
         n1 = len(payload)
-        k = 0 # Can vary this to thwart traffic analysis
+        k = 0  # Can vary this to thwart traffic analysis
         padding_length = 3 + (8 - (n1 % 8)) + 8 * k
         packet_length = n1 + padding_length + 1
         self.packet_logger.debug(f'packet_length: {packet_length}, padding_length: {padding_length}')
@@ -276,71 +198,8 @@ class SSHClient:
         self.send(payload)
         self.send(os.urandom(padding_length))
         if self.mac_algorthm is not None:
-            mac = self.create_hmac(self.mac_key, payload)
+            mac = self.create_hmac(self.derived_key, payload)
             self.logger.debug(f'MAC: {repr(mac)}')
-            self.send(mac)
-
-
-    def send_ssh_packet2(self, payload: bytes) -> None:
-        """
-        Each packet is in the following format:
-        uint32    packet_length
-        byte      padding_length
-        byte[n1]  payload; n1 = packet_length - padding_length - 1
-        byte[n2]  random padding; n2 = padding_length
-        byte[m]   mac (Message Authentication Code - MAC); m = mac_length
-
-        packet_length
-         The length of the packet in bytes, not including 'mac' or the
-         'packet_length' field itself.
-
-        padding_length
-         Length of 'random padding' (bytes).
-
-        payload
-         The useful contents of the packet.  If compression has been
-         negotiated, this field is compressed.  Initially, compression
-         MUST be "none".
-
-        random padding
-         Arbitrary-length padding, such that the total length of
-         (packet_length || padding_length || payload || random padding)
-         is a multiple of the cipher block size or 8, whichever is
-         larger.  There MUST be at least four bytes of padding.  The
-         padding SHOULD consist of random bytes.  The maximum amount of
-         padding is 255 bytes.
-
-        mac
-         Message Authentication Code.  If message authentication has
-         been negotiated, this field contains the MAC bytes.  Initially,
-         the MAC algorithm MUST be "none".
-
-        Note that the length of the concatenation of 'packet_length',
-        'padding_length', 'payload', and 'random padding' MUST be a multiple
-        of the cipher block size or 8, whichever is larger.  This constraint
-        MUST be enforced, even when using stream ciphers.  Note that the
-        'packet_length' field is also encrypted, and processing it requires
-        special care when sending or receiving packets.  Also note that the
-        insertion of variable amounts of 'random padding' may help thwart
-        traffic analysis.
-
-        The minimum size of a packet is 16 (or the cipher block size,
-        whichever is larger) bytes (plus 'mac').  Implementations SHOULD
-        decrypt the length after receiving the first 8 (or cipher block size,
-        whichever is larger) bytes of a packet.
-        """
-
-        packet_length: int = len(payload) + 1
-        padding_length: int = 16 - (packet_length % 16)
-        self.packet_logger.debug(f'packet_length: {packet_length}, padding_length: {padding_length}')
-        self.packet_logger.debug(f'client >> server {repr(payload)}')
-        self.send(packet_length.to_bytes(4, 'big'))
-        self.send(padding_length.to_bytes(1, 'big'))
-        self.send(payload)
-        self.send(os.urandom(padding_length))
-        if self.mac_algorthm is not None:
-            mac = self.create_hmac(self.mac_key, payload)
-            self.packet_logger.debug(f'MAC: {repr(mac)}')
             self.send(mac)
 
     def recv_ssh_packet(self) -> bytes:
@@ -353,13 +212,16 @@ class SSHClient:
         byte[m]   mac (Message Authentication Code - MAC); m = mac_length
         """
         packet_length = int.from_bytes(self.recv(4), 'big')
+        if packet_length > 100000:
+            self.logger.warning(f'Packet is reported very long: {packet_length}. Probably a decoding error')
         padding_length = int.from_bytes(self.recv(1), 'big')
         payload = self.recv(packet_length - padding_length - 1)
         random_padding = self.recv(padding_length)
         if self.mac_algorthm is not None:
-            mac = self.recv(len(self.mac_key))
+            mac = self.recv(len(self.derived_key))
             self.packet_logger.debug(f'MAC: {repr(mac)}')
-            assert mac == self.create_hmac(self.mac_key, payload), "MAC does not match"
+            expected_mac = self.create_hmac(self.derived_key, payload)
+            assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}| {self.derived_key}"
         self.packet_logger.debug(f'client << server {repr(payload)}')
         return payload
 
@@ -390,48 +252,36 @@ class SSHClient:
         if self.logger.level <= logging.INFO:
             console.print(f"Remote key:", remote_key)
 
-        assert local_key.kex_algorithms[0] in remote_key.kex_algorithms, "Server does not support DH key exchange"
-        assert remote_key.server_host_key_algorithms[0] in remote_key.server_host_key_algorithms, "Server does not support RSA key exchange"
-        assert remote_key.encryption_algorithms_client_to_server[0] in remote_key.encryption_algorithms_client_to_server, "Server does not support AES encryption"
-        assert remote_key.encryption_algorithms_server_to_client[0] in remote_key.encryption_algorithms_server_to_client, "Server does not support AES encryption"
-        assert remote_key.mac_algorithms_client_to_server[0] in remote_key.mac_algorithms_client_to_server, "Server does not support HMAC-SHA1"
-        assert remote_key.mac_algorithms_server_to_client[0] in remote_key.mac_algorithms_server_to_client, "Server does not support HMAC-SHA1"
-        assert remote_key.compression_algorithms_client_to_server[0] in remote_key.compression_algorithms_client_to_server, "Server does not support not using compression"
-        assert remote_key.compression_algorithms_server_to_client[0] in remote_key.compression_algorithms_server_to_client, "Server does not support not using compression"
+        self.assert_server_supports_algorithms(local_key, remote_key)
         # 3. Perform the DH key exchange
-        derived_key = self.perform_dh_key_exchange()
+        self.perform_dh_key_exchange()
 
-        # return derived_key
+    def assert_server_supports_algorithms(self, local_key, remote_key):
+        assert local_key.kex_algorithms[0] in remote_key.kex_algorithms, "Server does not support DH key exchange"
+        assert remote_key.server_host_key_algorithms[
+                   0] in remote_key.server_host_key_algorithms, "Server does not support RSA key exchange"
+        assert remote_key.encryption_algorithms_client_to_server[
+                   0] in remote_key.encryption_algorithms_client_to_server, "Server does not support AES encryption"
+        assert remote_key.encryption_algorithms_server_to_client[
+                   0] in remote_key.encryption_algorithms_server_to_client, "Server does not support AES encryption"
+        assert remote_key.mac_algorithms_client_to_server[
+                   0] in remote_key.mac_algorithms_client_to_server, "Server does not support HMAC-SHA1"
+        assert remote_key.mac_algorithms_server_to_client[
+                   0] in remote_key.mac_algorithms_server_to_client, "Server does not support HMAC-SHA1"
+        assert remote_key.compression_algorithms_client_to_server[
+                   0] in remote_key.compression_algorithms_client_to_server, "Server does not support not using compression"
+        assert remote_key.compression_algorithms_server_to_client[
+                   0] in remote_key.compression_algorithms_server_to_client, "Server does not support not using compression"
 
     @staticmethod
     def encode_mpint(n: int) -> bytes:
-        """
-        Converts an integer to a SSH MPInt
-
-        Represents multiple precision integers in two's complement format,
-        stored as a string, 8 bits per byte, MSB first.  Negative numbers
-        have the value 1 as the most significant bit of the first byte of
-        the data partition.  If the most significant bit would be set for
-        a positive number, the number MUST be preceded by a zero byte.
-        Unnecessary leading bytes with the value 0 or 255 MUST NOT be
-        included.  The value zero MUST be stored as a string with zero
-        bytes of data.
-
-        By convention, a number that is used in modular computations in
-        Z_n SHOULD be represented in the range 0 <= x < n.
-        """
-
         if n == 0:
             return b'\x00\x00\x00\x00'
-
-            # Handle positive numbers
-        if n > 0:
-            abs_bytes = n.to_bytes((n.bit_length() + 7) // 8, byteorder='big', signed=False)
-            if abs_bytes[0] & 0x80:  # If the highest bit is set, prepend a 0x00 byte
-                abs_bytes = b'\x00' + abs_bytes
-        else:
+        if n <= 0:
             raise NotImplementedError("Negative numbers not implemented")
-
+        abs_bytes = n.to_bytes((n.bit_length() + 7) // 8, byteorder='big', signed=False)
+        if abs_bytes[0] & 0x80:  # If the highest bit is set, prepend a 0x00 byte
+            abs_bytes = b'\x00' + abs_bytes
         length_prefix = len(abs_bytes).to_bytes(4, byteorder='big')
         return length_prefix + abs_bytes
 
@@ -443,44 +293,70 @@ class SSHClient:
         length = int.from_bytes(data[:4], byteorder='big')
         return int.from_bytes(data[4:4 + length], byteorder='big')
 
-
     def perform_dh_key_exchange(self):
         """Run diffie-hellman-group14-sha256 kex"""
-        server_public_key_bytes = self.recv_ssh_packet()
-        return
-        # 1. Generate the DH parameters
-        parameters = dh.generate_parameters(generator=2, key_size=2048, backend=default_backend())
-        private_key = parameters.generate_private_key()
-        public_key = private_key.public_key()
+        public_key_bytes = self.generate_local_keys()
+        self.send_local_keys(public_key_bytes)
+        server_public_key = self.receive_remote_keys()
+        self.expect_new_keys()
+        self.derive_shared_key(server_public_key)
 
-        # 2. Send the public key to the server
-        public_key_bytes = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
+    def expect_new_keys(self):
+        hopefully_new_keys = self.recv_ssh_packet()
+        self.logger.info(f'New keys: {hopefully_new_keys}')
+        assert hopefully_new_keys == SSHConstants.SSH_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
 
-        e = int.from_bytes(public_key_bytes, 'big')
+    def derive_shared_key(self, server_public_key):
+        shared_key = self.private_key.exchange(server_public_key)
+        self.derived_key = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=None,
+            info=b'ssh',
+            backend=default_backend()
+        ).derive(shared_key)
+        nonce = os.urandom(16)
+        self.cipher = Cipher(AES(self.derived_key), modes.CTR(nonce), default_backend())
+        self.encryptor = self.cipher.encryptor()
+        self.decryptor = self.cipher.decryptor()
+        self.mac_algorthm = 'hmac-sha1'
+        self.logger.info(f'Derived key: {self.derived_key}')
 
+    def receive_remote_keys(self):
+        self.logger.info(f'waiting for server response')
+        # 3. Receive the server's public key
+        server_payload = self.recv_ssh_packet()
+        parse_server_payload = io.BytesIO(server_payload)
+        kexdh_reply = parse_server_payload.read(1)
+        assert kexdh_reply == bytes([SSHConstants.SSH_MSG_KEXDH_REPLY])
+        server_public_key = parse_server_payload.read(257)
+        self.logger.info(f'Server public key: {server_public_key}')
+        server_public_key = dh.DHPublicNumbers(
+            SSHClient.decode_mpint(server_public_key),
+            self.parameters.parameter_numbers()
+        ).public_key(default_backend())
+        self.server_public_key = server_public_key
+        self.logger.info(f'Server public key: {server_public_key} {server_public_key.parameters()}')
+        return server_public_key
+
+    def send_local_keys(self, public_key_bytes):
         myio = io.BytesIO()
         myio.write(bytes([SSHConstants.SSH_MSG_KEXDH_INIT]))
-        myio.write(self.encode_mpint(e))
+        myio.write(b'\x00\x00\x01\x01')
+        myio.write(public_key_bytes)
         self.send_ssh_packet(myio.getvalue())
+        self.logger.info(f'Sent SSH_MSG_KEXDH_INIT')
 
-        # 3. Receive the server's public key
-
-        # server_public_key = serialization.load_pem_public_key(server_public_key_bytes, backend=default_backend())
-        #
-        # # 4. Derive the shared key
-        # shared_key = private_key.exchange(server_public_key)
-        # derived_key = HKDF(
-        #     algorithm=hashes.SHA256(),
-        #     length=32,
-        #     salt=None,
-        #     info=b'ssh',
-        #     backend=default_backend()
-        # ).derive(shared_key)
-        #
-        # return derived_key
+    def generate_local_keys(self):
+        self.logger.info(f'Generating keys...')
+        self.parameters = dh.generate_parameters(generator=2, key_size=2048, backend=default_backend())
+        self.private_key = self.parameters.generate_private_key()
+        self.public_key = self.private_key.public_key()
+        self.logger.info(f'Public key: {self.public_key} {self.public_key.parameters()}')
+        # 2. Send the public key to the server
+        public_key_bytes: bytes = self.public_key.public_numbers().y.to_bytes(257)
+        self.logger.info(f'Public key bytes: {public_key_bytes}')
+        return public_key_bytes
 
     def _exchange_versions(self) -> None:
         """Exchange SSH versions with the remote server (Step 1)"""
@@ -518,6 +394,11 @@ class SSHClient:
         if self.s:
             self.s.close()
 
+    def encrypt(self, param: bytes) -> bytes:
+        return self.encryptor.update(param)
+
+    def decrypt(self, param: bytes) -> bytes:
+        return self.decryptor.update(param)
 
 def test_mpint():
     """
@@ -532,23 +413,45 @@ def test_mpint():
     assert SSHClient.encode_mpint(0) == b'\x00\x00\x00\x00'
     assert SSHClient.encode_mpint(0x9a378f9b2e332a7) == b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7'
     assert SSHClient.encode_mpint(0x80) == b'\x00\x00\x00\x02\x00\x80'
+    assert SSHClient.encode_mpint(
+        0x00997731efad72192d895fcd1178720ee80cafa37481dc45920222da584c2d42bec79cd69a0a0424ae0da5bdf8239a26c5eb7d7c890f5e1c3413d0e908c815096d9df13fe1040c748ede35d17a748bcf77d031fc8d6bae2a6920af9482cd79841fb92aa63ca053ea9d01e657d6d88d5326805ad1c8486c7b85090286e53a456ba5b842e20a70b4295dc62a20a7cfe7ba76faa5c38fc6148e890d4a847592fcd8d2ae089f0604180fd2dd68a86b13b770e0fb0c6c27d56eabf79b25efd3c3ebef7cd9966a6e62533f247d8c520a8892fa36df7747b952bce23b3638ba36b1d245444e8dcd72141b46e9d47570c515fd7b9ea044a118482b4478b966435f5f7bdea1) == b"\x00\x00\x01\x01\x00\x99\x77\x31\xef\xad\x72\x19\x2d\x89\x5f\xcd\x11\x78\x72\x0e" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xe8\x0c\xaf\xa3\x74\x81\xdc\x45\x92\x02\x22\xda\x58\x4c\x2d\x42" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xbe\xc7\x9c\xd6\x9a\x0a\x04\x24\xae\x0d\xa5\xbd\xf8\x23\x9a\x26" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xc5\xeb\x7d\x7c\x89\x0f\x5e\x1c\x34\x13\xd0\xe9\x08\xc8\x15\x09" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x6d\x9d\xf1\x3f\xe1\x04\x0c\x74\x8e\xde\x35\xd1\x7a\x74\x8b\xcf" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x77\xd0\x31\xfc\x8d\x6b\xae\x2a\x69\x20\xaf\x94\x82\xcd\x79\x84" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x1f\xb9\x2a\xa6\x3c\xa0\x53\xea\x9d\x01\xe6\x57\xd6\xd8\x8d\x53" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x26\x80\x5a\xd1\xc8\x48\x6c\x7b\x85\x09\x02\x86\xe5\x3a\x45\x6b" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xa5\xb8\x42\xe2\x0a\x70\xb4\x29\x5d\xc6\x2a\x20\xa7\xcf\xe7\xba" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x76\xfa\xa5\xc3\x8f\xc6\x14\x8e\x89\x0d\x4a\x84\x75\x92\xfc\xd8" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xd2\xae\x08\x9f\x06\x04\x18\x0f\xd2\xdd\x68\xa8\x6b\x13\xb7\x70" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xe0\xfb\x0c\x6c\x27\xd5\x6e\xab\xf7\x9b\x25\xef\xd3\xc3\xeb\xef" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x7c\xd9\x96\x6a\x6e\x62\x53\x3f\x24\x7d\x8c\x52\x0a\x88\x92\xfa" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x36\xdf\x77\x47\xb9\x52\xbc\xe2\x3b\x36\x38\xba\x36\xb1\xd2\x45" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x44\x4e\x8d\xcd\x72\x14\x1b\x46\xe9\xd4\x75\x70\xc5\x15\xfd\x7b" \
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x9e\xa0\x44\xa1\x18\x48\x2b\x44\x78\xb9\x66\x43\x5f\x5f\x7b\xde\xa1"
 
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x00') == 0
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7') == 0x9a378f9b2e332a7
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x02\x00\x80') == 0x80
 
+
 def write_byt(byt: io.BytesIO, ssh: SSHClient):
     def w(b: bytes):
         ssh.bytes_logger.info(f'Send: {repr(b)}')
         byt.write(b)
+
     return w
+
 
 def read_byt(byt: io.BytesIO, ssh: SSHClient):
     def r(n: int = 1024) -> bytes:
         read = byt.read(n)
         ssh.bytes_logger.info(f'Recv[{n}]: {repr(read)}')
         return read
+
     return r
+
 
 def test_ssh_packet():
     ssh = SSHClient(host='localhost', port=8022)
@@ -565,9 +468,11 @@ def test_ssh_packet():
         value = ssh.recv_ssh_packet().decode('utf-8')
         assert message == value, f"{message} {value}"
 
+
 def main():
     ssh = SSHClient(host='localhost', port=8022)
     ssh.connect()
+
 
 if __name__ == '__main__':
     # test_mpint()
