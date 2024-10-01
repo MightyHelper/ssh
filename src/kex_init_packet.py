@@ -81,3 +81,14 @@ class SSHKEXInitPacket:
         myio.write(b'\x01' if self.first_kex_packet_follows else b'\x00')
         myio.write(struct.pack('>I', self.reserved))
         return myio.getvalue()
+
+    def assert_supports_algorithms(self, other_key: Self):
+        assert other_key.kex_algorithms[0] in self.kex_algorithms, "Server does not support DH key exchange"
+        assert other_key.server_host_key_algorithms[0] in self.server_host_key_algorithms, "Server does not support RSA key exchange"
+        assert other_key.encryption_algorithms_client_to_server[0] in self.encryption_algorithms_client_to_server, "Server does not support AES encryption"
+        assert other_key.encryption_algorithms_server_to_client[0] in self.encryption_algorithms_server_to_client, "Server does not support AES encryption"
+        assert other_key.mac_algorithms_client_to_server[0] in self.mac_algorithms_client_to_server, "Server does not support HMAC-SHA1"
+        assert other_key.mac_algorithms_server_to_client[0] in self.mac_algorithms_server_to_client, "Server does not support HMAC-SHA1"
+        assert other_key.compression_algorithms_client_to_server[0] in self.compression_algorithms_client_to_server, "Server does not support not using compression"
+        assert other_key.compression_algorithms_server_to_client[0] in self.compression_algorithms_server_to_client, "Server does not support not using compression"
+
