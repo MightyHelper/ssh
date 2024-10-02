@@ -17,6 +17,8 @@ class SSHVersion:
         return f'SSH-{self.proto_version}-{self.software_version} {self.comments}\r\n'
 
     def __repr__(self):
+        if not self.comments:
+            return f'SSH-{self.proto_version}-{self.software_version}'
         return f'SSH-{self.proto_version}-{self.software_version} {self.comments}'
 
     @classmethod
