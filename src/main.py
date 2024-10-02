@@ -37,7 +37,6 @@ def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
 def SSHKexdhInitPacket(public_key_bytes: bytes) -> SSHPacket:
     myio = io.BytesIO()
     myio.write(bytes([SSHConstants.SSH_MSG_KEXDH_INIT]))
-    myio.write(b'\x00\x00\x01\x01')
     myio.write(public_key_bytes)
     return SSHPacket.create_from_bytes(myio.getvalue())
 
@@ -78,15 +77,15 @@ class ExchangeParameters:
 
     @property
     def e_bytes(self) -> bytes:
-        return b'\x00' + self.e.to_bytes(LENGTH, 'big')
+        return SSHClient.encode_mpint(self.e)
 
     @property
     def k_bytes(self) -> bytes:
-        return self.k.to_bytes(LENGTH, 'big')
+        return SSHClient.encode_mpint(self.k)
 
     @property
     def f_bytes(self) -> bytes:
-        return self.f.to_bytes(LENGTH, 'big')
+        return SSHClient.encode_mpint(self.f)
 
     @property
     def _buffer(self) -> bytes:
@@ -101,11 +100,11 @@ class ExchangeParameters:
             self.i_s,
             (len(self.k_s)).to_bytes(4, byteorder='big'),
             self.k_s,
-            (len(self.e_bytes)).to_bytes(4, byteorder='big'),
+            # (len(self.e_bytes)).to_bytes(4, byteorder='big'),
             self.e_bytes,
-            (len(self.f_bytes)).to_bytes(4, byteorder='big'),
+            # (len(self.f_bytes)).to_bytes(4, byteorder='big'),
             self.f_bytes,
-            (len(self.k_bytes)).to_bytes(4, byteorder='big'),
+            # (len(self.k_bytes)).to_bytes(4, byteorder='big'),
             self.k_bytes,
         ]
         return b''.join(parts)
