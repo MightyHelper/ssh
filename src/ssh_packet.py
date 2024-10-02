@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 from dataclasses import dataclass
@@ -5,6 +6,7 @@ from typing import ClassVar, Self, Callable
 
 from cryptography.hazmat.primitives.ciphers import AEADDecryptionContext, AEADEncryptionContext
 
+from src.bytes_io_read_writables import BytesIOReadWritable
 from src.bytes_read_writable import BytesReadWritable
 
 
@@ -56,25 +58,30 @@ class SSHPacket:
 
     @classmethod
     def request_encrypted(cls, source: BytesReadWritable, decryptor: AEADDecryptionContext, mac_applicator: Callable[[bytes], bytes]) -> Self:
-        encrypted_length = source.recv(4)
+        encrypted_length = source.recv(9999999)
         decrypted_length_bytes = decryptor.update(encrypted_length)
-        length = int.from_bytes(decrypted_length_bytes, 'big')
-        cls.logger.debug(f'Encrypted packet length: {length}')
-        encrypted_padding_length = source.recv(1)
-        decrypted_padding_length_bytes = decryptor.update(encrypted_padding_length)
-        padding_length = int.from_bytes(decrypted_padding_length_bytes, 'big')
-        encrypted_payload = source.recv(length - padding_length - 1)
-        decrypted_payload = decryptor.update(encrypted_payload)
-        encrypted_random_padding = source.recv(padding_length)
-        random_padding = decryptor.update(encrypted_random_padding)
-        mac = source.recv(len(mac_applicator(b'')))
-        expected_mac = mac_applicator(decrypted_length_bytes + decrypted_padding_length_bytes + decrypted_payload + random_padding)
-        assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}"
-        cls.logger.info("MAC is good")
+        cls.logger.debug(f'H Decrypted packet: {decrypted_length_bytes}')
+        return cls.request(BytesIOReadWritable(io.BytesIO(decrypted_length_bytes)))
+        # length = int.from_bytes(encrypted_length, 'big')
+        # cls.logger.debug(f'Encrypted packet length: {length}')
+        # decrypted = decryptor.update(source.recv(length))
+        # cls.logger.debug(f'Decrypted packet: {decrypted}')
+        # data = BytesIOReadWritable(io.BytesIO(decrypted))
+        # encrypted_padding_length = data.recv(1)
+        # padding_length = int.from_bytes(encrypted_padding_length, 'big')
+        # payload_len = length - padding_length - 1
+        # mac_length = len(mac_applicator(b''))
+        # encrypted_payload = data.recv(payload_len)
+        # encrypted_random_padding = data.recv(padding_length)
+        # random_padding = decryptor.update(encrypted_random_padding)
+        # mac = data.recv(mac_length)
+        # expected_mac = mac_applicator(encrypted_length + encrypted_padding_length + encrypted_payload + random_padding)
+        # assert mac == expected_mac, f"MAC does not match {mac} vs {expected_mac}; payload is {encrypted_payload}"
+        # cls.logger.info("MAC is good")
         return cls(
             length=length,
             padding_length=padding_length,
-            payload=decrypted_payload,
+            payload=encrypted_payload,
             random_padding=random_padding,
         )
 

@@ -7,18 +7,18 @@ from random import randint
 import rich.table
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
-from cryptography.hazmat.primitives.ciphers.algorithms import AES
+from cryptography.hazmat.primitives.ciphers.algorithms import AES, AES128
 from rich.console import Console
 from rich.logging import RichHandler
 
 from src.constants import SSHConstants
+from src.group14_prime import GROUP14_PRIME
 from src.kex_init_packet import SSHKEXInitPacket
 from src.ssh_packet import SSHPacket
 from src.ssh_socket_wrapper import SSHSocketWrapper
 from src.version import SSHVersion
 
-LENGTH = 257
-
+LENGTH = 256
 KEY_SIZE = 2048
 
 console = Console()
@@ -78,15 +78,15 @@ class ExchangeParameters:
 
     @property
     def e_bytes(self) -> bytes:
-        return b'\x00' + self.e.to_bytes(LENGTH - 1, 'big')
+        return b'\x00' + self.e.to_bytes(LENGTH, 'big')
 
     @property
     def k_bytes(self) -> bytes:
-        return self.k.to_bytes(LENGTH - 1, 'big')
+        return self.k.to_bytes(LENGTH, 'big')
 
     @property
     def f_bytes(self) -> bytes:
-        return self.f.to_bytes(LENGTH - 1, 'big')
+        return self.f.to_bytes(LENGTH, 'big')
 
     @property
     def _buffer(self) -> bytes:
@@ -118,32 +118,32 @@ class ExchangeParameters:
     @property
     def iv0_c2s(self) -> bytes:
         """Initial IV client to server"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'A' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'A' + self.h_bytes).digest()
 
     @property
     def iv0_s2c(self) -> bytes:
         """Initial IV server to client"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'B' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'B' + self.h_bytes).digest()
 
     @property
     def key_c2s(self) -> bytes:
         """Encryption key client to server"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'C' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'C' + self.h_bytes).digest()
 
     @property
     def key_s2c(self) -> bytes:
         """Encryption key server to client"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'D' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'D' + self.h_bytes).digest()
 
     @property
     def mac_c2s(self) -> bytes:
         """MAC key client to server"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'E' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'E' + self.h_bytes).digest()
 
     @property
     def mac_s2c(self) -> bytes:
         """MAC key server to client"""
-        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'F' + self.session_id).digest()
+        return hashlib.sha256(SSHClient.encode_mpint(self.k) + self.h_bytes + b'F' + self.h_bytes).digest()
 
 
 class SSHClient:
@@ -184,7 +184,8 @@ class SSHClient:
         self.logger.info('Connected to server')
         self._exchange_versions()
         self.my_key_exchange()
-        self.request_service('ssh-userauth')
+        print(self.s.recv_packet())
+        # self.request_service('ssh-userauth')
 
     def request_service(self, service_name: str) -> None:
         self.s.send_packet(SSHMessageServiceRequestPacket(service_name.encode('utf-8')))
@@ -288,14 +289,18 @@ class SSHClient:
         self.logger.info(f'Derived key: {self.exchange_parameters.k}\n{hexdump(self.exchange_parameters.k)}')
         self.logger.info(f'Buffer: {self.exchange_parameters._buffer}\n{hexdump(self.exchange_parameters._buffer)}')
         self.logger.info(f'hash: {self.exchange_parameters.h_bytes}\n{hexdump(self.exchange_parameters.h_bytes)}')
-        self.logger.info(f'[A] IV0 C2S: {self.exchange_parameters.iv0_c2s}\n{hexdump(self.exchange_parameters.iv0_c2s)}')
-        self.logger.info(f'[B] IV0 S2C: {self.exchange_parameters.iv0_s2c}\n{hexdump(self.exchange_parameters.iv0_s2c)}')
-        self.logger.info(f'[C] Key C2S: {self.exchange_parameters.key_c2s}\n{hexdump(self.exchange_parameters.key_c2s)}')
-        self.logger.info(f'[D] Key S2C: {self.exchange_parameters.key_s2c}\n{hexdump(self.exchange_parameters.key_s2c)}')
-        self.cipher_c2s = Cipher(AES(self.exchange_parameters.key_c2s[16:]),
-                                 modes.CTR(self.exchange_parameters.iv0_c2s[16:]), default_backend())
-        self.cipher_s2c = Cipher(AES(self.exchange_parameters.key_s2c[16:]),
-                                 modes.CTR(self.exchange_parameters.iv0_s2c[16:]), default_backend())
+        self.logger.info(
+            f'[A] IV0 C2S: {self.exchange_parameters.iv0_c2s}\n{hexdump(self.exchange_parameters.iv0_c2s)}')
+        self.logger.info(
+            f'[B] IV0 S2C: {self.exchange_parameters.iv0_s2c}\n{hexdump(self.exchange_parameters.iv0_s2c)}')
+        self.logger.info(
+            f'[C] Key C2S: {self.exchange_parameters.key_c2s}\n{hexdump(self.exchange_parameters.key_c2s)}')
+        self.logger.info(
+            f'[D] Key S2C: {self.exchange_parameters.key_s2c}\n{hexdump(self.exchange_parameters.key_s2c)}')
+        self.cipher_c2s = Cipher(AES128(self.exchange_parameters.key_c2s[:16]),
+                                 modes.CTR(self.exchange_parameters.iv0_c2s[:16]), default_backend())
+        self.cipher_s2c = Cipher(AES128(self.exchange_parameters.key_s2c[:16]),
+                                 modes.CTR(self.exchange_parameters.iv0_s2c[:16]), default_backend())
         self.encryptor = self.cipher_c2s.encryptor()
         self.decryptor = self.cipher_s2c.decryptor()
 
@@ -316,12 +321,15 @@ class SSHClient:
 
     def generate_local_keys(self):
         self.logger.info(f'Generating keys...')
-        self.exchange_parameters.p = 0xFFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF
+        self.exchange_parameters.p = GROUP14_PRIME
         self.exchange_parameters.g = 2
         self.exchange_parameters.q = 2 ** 256 - 1
         self.exchange_parameters.x = randint(2, self.exchange_parameters.q)
-        self.exchange_parameters.e = pow(self.exchange_parameters.g, self.exchange_parameters.x,
-                                         self.exchange_parameters.p)
+        self.exchange_parameters.e = pow(
+            self.exchange_parameters.g,
+            self.exchange_parameters.x,
+            self.exchange_parameters.p
+        )
         self.logger.info(f'P: {self.exchange_parameters.p}\n{hexdump(self.exchange_parameters.p)}')
         self.logger.info(f'G: {self.exchange_parameters.g}\n{hexdump(self.exchange_parameters.g)}')
         self.logger.info(f'X: {self.exchange_parameters.x}\n{hexdump(self.exchange_parameters.x)}')
