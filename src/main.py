@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Self, Callable, ClassVar
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import dh
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
 from cryptography.hazmat.primitives.ciphers.algorithms import AES
@@ -123,8 +123,8 @@ class SSHPacket:
 
 
 class SSHClient:
-    my_ssh_version: SSHVersion = SSHVersion.from_string('SSH-2.0-LeoFedeSsh0.1 Un trabajo para un tp\r\n')
-    remote_ssh_version: SSHVersion = None
+    my_ssh_version: SSHVersion = SSHVersion.from_string('SSH-2.0-LeoFedeSsh0.1 Un trabajo para un tp\r\n') # V_C
+    remote_ssh_version: SSHVersion = None # V_S
     logger: logging.Logger = logging.getLogger("SSHClient")
     bytes_logger: logging.Logger = logging.getLogger("SSH_bytes")
     packet_logger: logging.Logger = logging.getLogger("SSH_packt")
@@ -133,14 +133,18 @@ class SSHClient:
     s: socket.socket | None
     parameters: dh.DHParameters
     private_key: dh.DHPrivateKey
-    public_key: dh.DHPublicKey
-    server_public_key: dh.DHPublicKey
+    public_key: dh.DHPublicKey # e
+    server_public_key: dh.DHPublicKey # f
     derived_key: bytes
     cipher: Cipher
     encryptor: AEADEncryptionContext
     decryptor: AEADDecryptionContext
     exchange_hash_h: bytes
-    shared_secret_k: bytes
+    shared_secret_k: bytes # K
+    server_host_key: bytes # K_S
+    kexinit_packet_sent: bytes # I_C
+    kexinit_packet_received: bytes # I_S
+    session_hash: bytes # H
 
     def __init__(self, host, port):
         self.s = None
@@ -172,7 +176,7 @@ class SSHClient:
         self.logger.info('Connected to server')
         self._exchange_versions()
         self.my_key_exchange()
-        self.request_service('ssh-userauth')
+        self.request_service('ssh-connection')
 
     def request_service(self, service_name: str) -> None:
         self.send_encrypted_ssh_packet(SSHConstants.SSH_MSG_SERVICE_REQUEST.to_bytes() + service_name.encode('utf-8'))
@@ -188,6 +192,7 @@ class SSHClient:
 
     def send_encrypted_ssh_packet(self, payload: bytes) -> None:
         self.packet_logger.info(f'Sending encrypted packet: {payload}')
+        self.packet_logger.info(f'Packet length: {len(payload)}')
         packet = SSHPacket.create_from_bytes(payload)
         SSHPacket.local_to_remote_sequence_number += 1
         encrypted_packet = packet.to_encrypted_bytes(self.encryptor, self.mac_applicator)
@@ -221,10 +226,12 @@ class SSHClient:
         )
         if self.logger.level <= logging.INFO:
             console.print(f"Local key:", local_key)
+        self.kexinit_packet_sent = local_key.to_bytes()
         self.send_ssh_packet(local_key.to_bytes())
 
         # 2. Receive the server's key exchange message
         server_payload = self.recv_ssh_packet()
+        self.kexinit_packet_received = server_payload
         remote_key = SSHKEXInitPacket.from_bytes(server_payload)
         if self.logger.level <= logging.INFO:
             console.print(f"Remote key:", remote_key)
@@ -285,15 +292,48 @@ class SSHClient:
         # Send the new keys message
         self.send_ssh_packet(SSHConstants.SSH_MSG_NEWKEYS.to_bytes())
 
+    def create_hash(self, shared_key, server_public_key):
+        # hash(V_C || V_S || I_C || I_S || K_S || e || f || K)
+        self.logger.info(f'Shared key: {shared_key}')
+        self.logger.info('Creating hash...')
+        self.logger.info(f'V_C: {self.my_ssh_version.__str__()}')
+        self.logger.info(f'V_S: {self.remote_ssh_version.__str__()}')
+        self.logger.info(f'I_C: {self.kexinit_packet_sent}')
+        self.logger.info(f'I_S: {self.kexinit_packet_received}')
+        self.logger.info(f'K_S: {self.server_host_key}')
+        self.logger.info(f'e: {self.public_key}')
+        self.logger.info(f'f: {server_public_key}')
+        self.logger.info(f'K: {self.shared_secret_k}')
+        public_key_bytes = self.public_key.public_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        server_public_key_bytes = server_public_key.public_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        data_to_hash: bytes = (
+                    self.my_ssh_version.__str__().encode('utf-8') + self.remote_ssh_version.__str__().encode('utf-8')
+                    + self.server_host_key + public_key_bytes + server_public_key_bytes + self.shared_secret_k)
+        session_hash = hashlib.sha256(data_to_hash).digest()
+        self.session_hash = session_hash
+        return session_hash
+
     def derive_shared_key(self, server_public_key):
+
         shared_key = self.private_key.exchange(server_public_key)
+        self.shared_secret_k = shared_key
+        session_hash = self.create_hash(shared_key, server_public_key)
+
         self.derived_key = HKDF(
             algorithm=hashes.SHA256(),
             length=32,
             salt=None,
             info=b'ssh',
             backend=default_backend()
-        ).derive(shared_key)
+        ).derive(session_hash + shared_key)
+
+
         nonce = os.urandom(16)
         self.cipher = Cipher(AES(self.derived_key), modes.CTR(nonce), default_backend())
         self.encryptor = self.cipher.encryptor()
@@ -305,10 +345,26 @@ class SSHClient:
         self.logger.info(f'waiting for server response')
         # 3. Receive the server's public key
         server_payload = self.recv_ssh_packet()
+        self.logger.info(f'server_payload length: {len(server_payload)}')
         parse_server_payload = io.BytesIO(server_payload)
+        self.logger.info(f'parse_server_payload len: {len(server_payload)}')
+
         kexdh_reply = parse_server_payload.read(1)
         assert kexdh_reply == bytes([SSHConstants.SSH_MSG_KEXDH_REPLY])
-        server_public_key = parse_server_payload.read(257)
+
+        server_host_key_length = int.from_bytes(parse_server_payload.read(4), byteorder='big')
+        server_host_key = parse_server_payload.read(server_host_key_length)
+        self.server_host_key = server_host_key
+        self.logger.info(f'server_host_key length: {server_host_key_length}')
+
+        server_public_key_length = int.from_bytes(parse_server_payload.read(4), byteorder='big')
+        server_public_key = parse_server_payload.read(server_public_key_length)
+        self.logger.info(f'server_public_key length: {server_public_key_length}')
+
+        server_hash_firm_length = int.from_bytes(parse_server_payload.read(4), byteorder='big')
+        server_hash_firm = parse_server_payload.read(server_hash_firm_length)
+        self.logger.info(f'server_hash length: {server_hash_firm_length}')
+
         self.logger.info(f'Server public key: {server_public_key}')
         server_public_key = dh.DHPublicNumbers(
             SSHClient.decode_mpint(server_public_key),
@@ -317,6 +373,7 @@ class SSHClient:
         self.server_public_key = server_public_key
         self.logger.info(f'Server public key: {server_public_key} {server_public_key.parameters()}')
         return server_public_key
+
 
     def send_local_keys(self, public_key_bytes):
         myio = io.BytesIO()
