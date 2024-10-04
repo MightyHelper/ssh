@@ -3,6 +3,7 @@ import hmac
 import io
 import logging
 from random import randint
+from types import SimpleNamespace
 
 import rich.table
 from cryptography.hazmat.backends import default_backend
@@ -101,11 +102,8 @@ class ExchangeParameters:
             self.i_s,
             (len(self.k_s)).to_bytes(4, byteorder='big'),
             self.k_s,
-            # (len(self.e_bytes)).to_bytes(4, byteorder='big'),
             self.e_bytes,
-            # (len(self.f_bytes)).to_bytes(4, byteorder='big'),
             self.f_bytes,
-            # (len(self.k_bytes)).to_bytes(4, byteorder='big'),
             self.k_bytes,
         ]
         return b''.join(parts)
@@ -174,16 +172,25 @@ class SSHClient:
         self.exchange_parameters = ExchangeParameters()
 
     def create_hmac(self, key: bytes, message: bytes) -> bytes:
-        return hmac.HMAC(key, message, hashlib.sha1).digest()
+        return hmac.HMAC(key[:20], message, hashlib.sha1).digest()
 
-    def mac_applicator_s2c(self, data: bytes) -> bytes:
-        self.logger.info(f"MAC for \n{hexdump(data)}")
-        for i in range(0, 20):
-            sequence_ored_with_data = i.to_bytes(4, 'big') + data
-            dig = self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
-            self.logger.info(f'MAC {i}: \n{hexdump(dig)}')
-        sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
-        return self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
+    def mac_validator_s2c(self, data: bytes, mac: bytes) -> bool:
+        self.logger.info(f"Validate MAC on \n{hexdump(data)}")
+        self.logger.info(f"mac_s2c is \n{hexdump(self.exchange_parameters.mac_s2c)}")
+
+        for i in range(100):
+            c = self.mac_applicator_s2c(data, i)
+            if mac == c or mac == c[::-1]:
+                self.logger.info(f"MAC VALIDATED with offset {i} (expected {SSHPacket.local_to_remote_sequence_number})")
+                return True
+        return False
+
+    def mac_applicator_s2c(self, data: bytes, offset: int | None = None) -> bytes:
+        offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
+        sequence_ored_with_data = offset.to_bytes(4, 'big') + data
+        hmac = self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
+        # self.logger.info(f"MAC \n{hexdump(hmac)}")
+        return hmac
 
     def mac_applicator_c2s(self, data: bytes) -> bytes:
         sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
@@ -285,8 +292,8 @@ class SSHClient:
         self.s.do_encryption = True
         self.s.encryptor = self.encryptor
         self.s.decryptor = self.decryptor
-        self.s.mac_calculator_s2c = self.mac_applicator_s2c
-        self.s.mac_calculator_c2s = self.mac_applicator_c2s
+        self.s.mac_validator_s2c = self.mac_validator_s2c
+        self.s.mac_applicator_c2s = self.mac_applicator_c2s
 
     def expect_new_keys(self):
         assert self.s.recv_packet().payload == SSHConstants.SSH2_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
@@ -448,6 +455,70 @@ def main():
     ssh.connect()
 
 
+def main2():
+    # ep = SimpleNamespace()
+    # ep.mac_s2c = b'\x26\xa0\xbc\x45\x48\x3b\xba\x73\xf7\x1f\x0c\xea\x63\xcd\xf0\x35\xdf\x72\x08\x3a'
+    # ep.mac_c2s = b'\xf5\x38\x5c\xdd\x8c\xde\xfa\xa2\x5c\x92\x3e\x67\x98\x82\xbd\x5f\x40\xf6\xb5\x70'
+    # def mac_applicator_c2s(seq: int, data: bytes) -> bytes:
+    #     sequence_ored_with_data = seq.to_bytes(4, 'big') + data
+    #     return hmac.HMAC(ep.mac_c2s, sequence_ored_with_data, hashlib.sha1).digest()
+    #
+    # for i in range(500):
+    #     print(i, hexdump(mac_applicator_c2s(i, b'\x00\x00\x00\x00\x00\x02\x00\x00\x00\x06\x6d\x61\x72\x6b\x75\x73')))
+    import hmac
+    import hashlib
+
+    def test1(key_bytes, data_bytes):
+        h = hmac.new(key_bytes, data_bytes, hashlib.sha1)
+        hmac_result = h.hexdigest()
+        hmac_result_bytes = bytes.fromhex(hmac_result)
+        return hmac_result_bytes[::-1].hex()
+
+    def test2(key_bytes, data_bytes):
+        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
+        hmac_result = h.hexdigest()
+        hmac_result_bytes = bytes.fromhex(hmac_result)
+        return hmac_result_bytes[::-1].hex()
+
+    def test3(key_bytes, data_bytes):
+        h = hmac.new(key_bytes, data_bytes, hashlib.sha1)
+        return h.hexdigest()
+
+    def test4(key_bytes, data_bytes):
+        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
+        return h.hexdigest()
+
+    def test5(key_bytes, data_bytes):
+        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
+        return h.digest()
+
+    # Example usage:
+    shared_secret = "22 46 01 c6 d2 79 33 e6 15 c7 97 70 ee d7 d8 10 fb b4 a9 2c d1 e0 5d 2f dc bd cf f9 09 89 8a ac"
+    packet_data = "00 00 00 03 00 00 00 1c 10 02 00 00 00 06 6d 61 72 6b 75 73 64 55 33 3c ad 46 f3 3f 1a bb 56 9d da 6b 9b 22"
+    target_data = "e0 13 7d 6f 3e 66 ee e5 56 9c f0 86 78 a7 21 1a 77 18 22 4a"
+    key_bytes = bytes.fromhex(shared_secret)
+    data_bytes = bytes.fromhex(packet_data)
+    target_bytes = bytes.fromhex(target_data)
+    tests = [
+        (test1, "test1"),
+        (test2, "test2"),
+        (test3, "test3"),
+        (test4, "test4"),
+    ]
+
+    for test, name in tests:
+        print(f"Test {name}:")
+        result = bytes.fromhex(test(key_bytes, data_bytes))
+
+        print(result.hex())
+        print(result[::-1].hex())
+        print(result == target_bytes)
+        print(result[::-1] == target_bytes)
+
+    print(test5(key_bytes[:20], data_bytes).hex(), target_bytes.hex())
+
 if __name__ == '__main__':
     # test_mpint()
     main()
+    # main2()
+

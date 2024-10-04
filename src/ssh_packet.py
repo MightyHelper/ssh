@@ -67,16 +67,16 @@ class SSHPacket:
 
     @classmethod
     def request_encrypted(cls, source: BytesReadWritable, decryptor: AEADDecryptionContext,
-                          mac_applicator: Callable[[bytes], bytes]) -> Self:
-        encrypted_length = source.recv(9999999)
-        decrypted_length_bytes = decryptor.update(encrypted_length)
-        cls.logger.debug(f'Decrypted packet: \n{hexdump(decrypted_length_bytes)}')
-        writable = BytesIOReadWritable(io.BytesIO(decrypted_length_bytes))
+                          mac_validator: Callable[[bytes, bytes], bool]) -> Self:
+        encrypted_bytes = source.recv(9999999)
+        cls.logger.debug(f'Encrypted packet: \n{hexdump(encrypted_bytes)}')
+        decrypted_bytes = decryptor.update(encrypted_bytes)
+        cls.logger.debug(f'Decrypted packet: \n{hexdump(decrypted_bytes)}')
+        writable = BytesIOReadWritable(io.BytesIO(decrypted_bytes))
         packet = cls.request(writable)
-        mac = writable.recv(10000)
-        calculated_mac = mac_applicator(decrypted_length_bytes[:-20])
-        if mac != calculated_mac:
-            cls.logger.error(f'MAC mismatch: T:\n{hexdump(mac)} != \nE:\n{hexdump(calculated_mac)}')
+        mac = encrypted_bytes[-20:]
+        if not mac_validator(decrypted_bytes[:-len(mac)], mac):
+            cls.logger.error(f'MAC mismatch: T:\n{hexdump(mac)}')
         return packet
 
     def to_bytes(self) -> bytes:
