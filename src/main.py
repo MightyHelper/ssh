@@ -2,10 +2,7 @@ import hashlib
 import hmac
 import io
 import logging
-import time
-from asyncio import sleep
 from random import randint
-from types import SimpleNamespace
 
 import rich.table
 from cryptography.hazmat.backends import default_backend
@@ -260,11 +257,21 @@ class SSHClient:
             request_data=command.encode('utf-8')
         ))
         response = self.s.recv_packet()
-        self.logger.info(f'Response: {response}')
+        self.logger.info(f'adjust Response: {response}')
         assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_WINDOW_ADJUST, f"Window not adjusted... {response.code}"
-        # response = self.s.recv_packet()
-        # assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_SUCCESS, f"Response... {response.code}"
-        # self.logger.info(f'Command executed: {response.payload}')
+        response = self.s.recv_packet()
+        self.logger.info(f'exec Response: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_SUCCESS, f"Response... {response.code}"
+        self.logger.info(f'Success!: {response.payload}')
+        response = self.s.recv_packet()
+        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_EXTENDED_DATA, f"Channel extended data... {response.code}"
+        self.logger.info(f'Extended Channel data: {response}')
+
+        response = self.s.recv_packet()
+        self.logger.info(f'Response: {response}')
+
+
+
 
 
 
@@ -294,7 +301,7 @@ class SSHClient:
         sender_channel = request_uint32(bio)
         initial_window_size = request_uint32(bio)
         maximum_packet_size = request_uint32(bio)
-        self.logger.info(f'Channel open: {typ=} {recipient_channel=} {sender_channel=} {initial_window_size=} {maximum_packet_size=}')
+        self.logger.info(f'Channel open: {response.code=} {recipient_channel=} {sender_channel=} {initial_window_size=} {maximum_packet_size=}')
         return sender_channel
 
 

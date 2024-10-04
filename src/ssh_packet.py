@@ -73,15 +73,21 @@ class SSHPacket:
     @classmethod
     def request_encrypted(cls, source: BytesReadWritable, decryptor: AEADDecryptionContext,
                           mac_validator: Callable[[bytes, bytes], bool]) -> Self:
-        encrypted_bytes = source.recv(9999999)
+        encrypted_bytes = source.recv(5)
+        decrypted_bytes = decryptor.update(encrypted_bytes)
+        length = int.from_bytes(decrypted_bytes[:4], 'big')
+        pad = int.from_bytes(decrypted_bytes[4:], 'big')
+        cls.logger.debug(f"{length=} {pad=}")
+        new_bytes = source.recv(length - 1)
+        encrypted_bytes += new_bytes
+        decrypted_bytes += decryptor.update(new_bytes)
+        mac = source.recv(20)
         if len(encrypted_bytes) == 0:
             raise EOFError('No data received')
-        cls.logger.debug(f'[RECV] Encrypted packet: \n{hexdump(encrypted_bytes)}')
-        decrypted_bytes = decryptor.update(encrypted_bytes[:-20])
+        cls.logger.debug(f'[RECV] Encrypted packet: \n{hexdump(encrypted_bytes + mac)}')
         cls.logger.debug(f'[RECV] Decrypted packet: \n{hexdump(decrypted_bytes)}')
         writable = BytesIOReadWritable(io.BytesIO(decrypted_bytes))
         packet = cls.request(writable)
-        mac = encrypted_bytes[-20:]
         if not mac_validator(decrypted_bytes, mac):
             cls.logger.error(f'[RECV] MAC mismatch: T:\n{hexdump(mac)}')
         return packet
