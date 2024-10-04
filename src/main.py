@@ -2,12 +2,13 @@ import hashlib
 import hmac
 import io
 import logging
+import sys
 from random import randint
 
 import rich.table
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
-from cryptography.hazmat.primitives.ciphers.algorithms import AES128
+from cryptography.hazmat.primitives.ciphers.algorithms import AES
 from rich.console import Console
 from rich.logging import RichHandler
 
@@ -40,6 +41,13 @@ def encode_str(data: bytes) -> bytes:
 
 def request_uint32(source: BytesReadWritable) -> int:
     return int.from_bytes(source.recv(4), byteorder='big')
+
+def request_byte(source: BytesReadWritable) -> int:
+    return int.from_bytes(source.recv(1), byteorder='big')
+
+def request_str(source: BytesReadWritable) -> bytes:
+    length = request_uint32(source)
+    return source.recv(length)
 
 
 def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
@@ -238,16 +246,14 @@ class SSHClient:
         self.logger.info('Connected to server')
         self._exchange_versions()
         self.my_key_exchange()
-        expect_markus = True
+        expect_markus = False
         if expect_markus:
             print(self.s.recv_packet())
-        # self.s.send(bytes.fromhex(""))
         self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
-        # time.sleep(3)
         self.request_service('ssh-userauth')
         self.password_auth()
         chan = self.open_session_channel(0)
-        self.run_exec_command('echo hi', chan)
+        self.run_exec_command(sys.argv[1], chan)
 
     def run_exec_command(self, command: str, channel_id: int = 0):
         self.s.send_packet(SSHMessageChannelRequestPacket(
@@ -257,18 +263,17 @@ class SSHClient:
             request_data=command.encode('utf-8')
         ))
         response = self.s.recv_packet()
-        self.logger.info(f'adjust Response: {response}')
-        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_WINDOW_ADJUST, f"Window not adjusted... {response.code}"
-        response = self.s.recv_packet()
-        self.logger.info(f'exec Response: {response}')
-        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_SUCCESS, f"Response... {response.code}"
-        self.logger.info(f'Success!: {response.payload}')
-        response = self.s.recv_packet()
-        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_EXTENDED_DATA, f"Channel extended data... {response.code}"
-        self.logger.info(f'Extended Channel data: {response}')
+        while response.code_constant != SSHConstants.SSH2_MSG_CHANNEL_DATA:
+            self.logger.info(f'Waiting for data... {response.code}')
+            response = self.s.recv_packet()
 
-        response = self.s.recv_packet()
         self.logger.info(f'Response: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_DATA, f"Channel data... {response.code}"
+        payload = BytesIOReadWritable(io.BytesIO(response.payload))
+        code = request_byte(payload)
+        recipient = request_uint32(payload)
+        data = request_str(payload)
+        self.logger.info(f'Channel data: {response.payload} {recipient=} {data=}')
 
 
 
@@ -427,12 +432,12 @@ class SSHClient:
         self.debug_parameter("[E] MAC C2S", self.exchange_parameters.mac_c2s)
         self.debug_parameter("[F] MAC S2C", self.exchange_parameters.mac_s2c)
         self.cipher_c2s = Cipher(
-            AES128(self.exchange_parameters.key_c2s[:16]),
+            AES(self.exchange_parameters.key_c2s[:16]),
             modes.CTR(self.exchange_parameters.iv0_c2s[:16]),
             default_backend()
         )
         self.cipher_s2c = Cipher(
-            AES128(self.exchange_parameters.key_s2c[:16]),
+            AES(self.exchange_parameters.key_s2c[:16]),
             modes.CTR(self.exchange_parameters.iv0_s2c[:16]),
             default_backend()
         )
