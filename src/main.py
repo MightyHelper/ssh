@@ -33,12 +33,13 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, console=console)],
 )
 
+def encode_str(data: bytes) -> bytes:
+    return len(data).to_bytes(4, byteorder='big') + data
 
 def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
     return SSHPacket.create_from_bytes(
         SSHConstants.SSH2_MSG_SERVICE_REQUEST.to_bytes() +
-        len(service_name).to_bytes(4, byteorder='big') +
-        service_name,
+        encode_str(service_name),
         16
     )
 
@@ -53,6 +54,16 @@ def SSHKexdhInitPacket(public_key_bytes: bytes) -> SSHPacket:
 def SSHNewKeysPacket() -> SSHPacket:
     return SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_NEWKEYS.to_bytes())
 
+def SSHMessageUserAuthRequestPacket(username: bytes, service_name: bytes, method_name: bytes, password: bytes) -> SSHPacket:
+    return SSHPacket.create_from_bytes(
+        SSHConstants.SSH2_MSG_USERAUTH_REQUEST.to_bytes() +
+        encode_str(username) +
+        encode_str(service_name) +
+        encode_str(method_name) +
+        b'\x00' +
+        encode_str(password),
+        16
+    )
 
 class ExchangeParameters:
     v_c: bytes
@@ -99,16 +110,11 @@ class ExchangeParameters:
     @property
     def _buffer(self) -> bytes:
         parts = [
-            (len(self.v_c) - 1).to_bytes(4, byteorder='big'),
-            self.v_c[:-1],
-            (len(self.v_s)).to_bytes(4, byteorder='big'),
-            self.v_s,
-            (len(self.i_c)).to_bytes(4, byteorder='big'),
-            self.i_c,
-            (len(self.i_s)).to_bytes(4, byteorder='big'),
-            self.i_s,
-            (len(self.k_s)).to_bytes(4, byteorder='big'),
-            self.k_s,
+            encode_str(self.v_c[:-1]),
+            encode_str(self.v_s),
+            encode_str(self.i_c),
+            encode_str(self.i_s),
+            encode_str(self.k_s),
             self.e_bytes,
             self.f_bytes,
             self.k_bytes,
@@ -191,12 +197,12 @@ class SSHClient:
         return False
 
     def mac_applicator_s2c(self, data: bytes, offset: int | None = None) -> bytes:
-        offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
+        offset = offset if offset is not None else SSHPacket.remote_to_local_sequence_number
         seq_with_data = offset.to_bytes(4, 'big') + data
         return self.create_hmac(self.exchange_parameters.mac_s2c, seq_with_data)
 
     def mac_applicator_c2s(self, data: bytes, offset: int | None = None) -> bytes:
-        offset = offset if offset is not None else SSHPacket.remote_to_local_sequence_number
+        offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
         seq_with_data = offset.to_bytes(4, 'big') + data
         return self.create_hmac(self.exchange_parameters.mac_c2s, seq_with_data)
 
@@ -212,13 +218,25 @@ class SSHClient:
         self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
         # time.sleep(3)
         self.request_service('ssh-userauth')
+        self.begin_password_auth()
+
+    def begin_password_auth(self):
+        """
+        byte      SSH_MSG_USERAUTH_REQUEST
+        string    user name
+        string    service name
+        string    "password"
+        boolean   FALSE
+        string    plaintext password in ISO-10646 UTF-8 encoding [RFC3629]
+        """
+
+
 
     def request_service(self, service_name: str) -> None:
         self.s.send_packet(SSHMessageServiceRequestPacket(service_name.encode('utf-8')))
         response = self.s.recv_packet()
         self.logger.info(f'Response: {response}')
-        assert response == SSHConstants.SSH2_MSG_SERVICE_ACCEPT.to_bytes() + service_name.encode(
-            'utf-8'), "Service not accepted"
+        assert response.code_constant == SSHConstants.SSH2_MSG_SERVICE_ACCEPT, f"Service not accepted {response.code}"
 
     def my_key_exchange(self):
         """ Sends the initial key exchange message to the server with format """
@@ -261,8 +279,7 @@ class SSHClient:
         abs_bytes = n.to_bytes((n.bit_length() + 7) // 8, byteorder='big', signed=False)
         if abs_bytes[0] & 0x80:  # If the highest bit is set, prepend a 0x00 byte
             abs_bytes = b'\x00' + abs_bytes
-        length_prefix = len(abs_bytes).to_bytes(4, byteorder='big')
-        return length_prefix + abs_bytes
+        return encode_str(abs_bytes)
 
     @staticmethod
     def decode_mpint(data: bytes) -> int:
@@ -422,109 +439,10 @@ class SSHClient:
         self.exchange_parameters.v_s = repr(self.remote_ssh_version).encode('utf-8')
 
 
-def test_mpint():
-    """
-         value (hex)        representation (hex)
-     -----------        --------------------
-     0                  00 00 00 00
-     9a378f9b2e332a7    00 00 00 08 09 a3 78 f9 b2 e3 32 a7
-     80                 00 00 00 02 00 80
-     -1234              00 00 00 02 ed cc
-     -deadbeef          00 00 00 05 ff 21 52 41 11
-    """
-    assert SSHClient.encode_mpint(0) == b'\x00\x00\x00\x00'
-    assert SSHClient.encode_mpint(0x9a378f9b2e332a7) == b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7'
-    assert SSHClient.encode_mpint(0x80) == b'\x00\x00\x00\x02\x00\x80'
-    assert SSHClient.encode_mpint(
-        0x00997731efad72192d895fcd1178720ee80cafa37481dc45920222da584c2d42bec79cd69a0a0424ae0da5bdf8239a26c5eb7d7c890f5e1c3413d0e908c815096d9df13fe1040c748ede35d17a748bcf77d031fc8d6bae2a6920af9482cd79841fb92aa63ca053ea9d01e657d6d88d5326805ad1c8486c7b85090286e53a456ba5b842e20a70b4295dc62a20a7cfe7ba76faa5c38fc6148e890d4a847592fcd8d2ae089f0604180fd2dd68a86b13b770e0fb0c6c27d56eabf79b25efd3c3ebef7cd9966a6e62533f247d8c520a8892fa36df7747b952bce23b3638ba36b1d245444e8dcd72141b46e9d47570c515fd7b9ea044a118482b4478b966435f5f7bdea1) == b"\x00\x00\x01\x01\x00\x99\x77\x31\xef\xad\x72\x19\x2d\x89\x5f\xcd\x11\x78\x72\x0e" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xe8\x0c\xaf\xa3\x74\x81\xdc\x45\x92\x02\x22\xda\x58\x4c\x2d\x42" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xbe\xc7\x9c\xd6\x9a\x0a\x04\x24\xae\x0d\xa5\xbd\xf8\x23\x9a\x26" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xc5\xeb\x7d\x7c\x89\x0f\x5e\x1c\x34\x13\xd0\xe9\x08\xc8\x15\x09" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x6d\x9d\xf1\x3f\xe1\x04\x0c\x74\x8e\xde\x35\xd1\x7a\x74\x8b\xcf" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x77\xd0\x31\xfc\x8d\x6b\xae\x2a\x69\x20\xaf\x94\x82\xcd\x79\x84" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x1f\xb9\x2a\xa6\x3c\xa0\x53\xea\x9d\x01\xe6\x57\xd6\xd8\x8d\x53" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x26\x80\x5a\xd1\xc8\x48\x6c\x7b\x85\x09\x02\x86\xe5\x3a\x45\x6b" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xa5\xb8\x42\xe2\x0a\x70\xb4\x29\x5d\xc6\x2a\x20\xa7\xcf\xe7\xba" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x76\xfa\xa5\xc3\x8f\xc6\x14\x8e\x89\x0d\x4a\x84\x75\x92\xfc\xd8" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xd2\xae\x08\x9f\x06\x04\x18\x0f\xd2\xdd\x68\xa8\x6b\x13\xb7\x70" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\xe0\xfb\x0c\x6c\x27\xd5\x6e\xab\xf7\x9b\x25\xef\xd3\xc3\xeb\xef" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x7c\xd9\x96\x6a\x6e\x62\x53\x3f\x24\x7d\x8c\x52\x0a\x88\x92\xfa" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x36\xdf\x77\x47\xb9\x52\xbc\xe2\x3b\x36\x38\xba\x36\xb1\xd2\x45" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x44\x4e\x8d\xcd\x72\x14\x1b\x46\xe9\xd4\x75\x70\xc5\x15\xfd\x7b" \
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 b"\x9e\xa0\x44\xa1\x18\x48\x2b\x44\x78\xb9\x66\x43\x5f\x5f\x7b\xde\xa1"
-
-    assert SSHClient.decode_mpint(b'\x00\x00\x00\x00') == 0
-    assert SSHClient.decode_mpint(b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7') == 0x9a378f9b2e332a7
-    assert SSHClient.decode_mpint(b'\x00\x00\x00\x02\x00\x80') == 0x80
-
 
 def main():
     ssh = SSHClient(host='localhost', port=8222)
     ssh.connect()
-
-
-def main2():
-    # ep = SimpleNamespace()
-    # ep.mac_s2c = b'\x26\xa0\xbc\x45\x48\x3b\xba\x73\xf7\x1f\x0c\xea\x63\xcd\xf0\x35\xdf\x72\x08\x3a'
-    # ep.mac_c2s = b'\xf5\x38\x5c\xdd\x8c\xde\xfa\xa2\x5c\x92\x3e\x67\x98\x82\xbd\x5f\x40\xf6\xb5\x70'
-    # def mac_applicator_c2s(seq: int, data: bytes) -> bytes:
-    #     sequence_ored_with_data = seq.to_bytes(4, 'big') + data
-    #     return hmac.HMAC(ep.mac_c2s, sequence_ored_with_data, hashlib.sha1).digest()
-    #
-    # for i in range(500):
-    #     print(i, hexdump(mac_applicator_c2s(i, b'\x00\x00\x00\x00\x00\x02\x00\x00\x00\x06\x6d\x61\x72\x6b\x75\x73')))
-    import hmac
-    import hashlib
-
-    def test1(key_bytes, data_bytes):
-        h = hmac.new(key_bytes, data_bytes, hashlib.sha1)
-        hmac_result = h.hexdigest()
-        hmac_result_bytes = bytes.fromhex(hmac_result)
-        return hmac_result_bytes[::-1].hex()
-
-    def test2(key_bytes, data_bytes):
-        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
-        hmac_result = h.hexdigest()
-        hmac_result_bytes = bytes.fromhex(hmac_result)
-        return hmac_result_bytes[::-1].hex()
-
-    def test3(key_bytes, data_bytes):
-        h = hmac.new(key_bytes, data_bytes, hashlib.sha1)
-        return h.hexdigest()
-
-    def test4(key_bytes, data_bytes):
-        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
-        return h.hexdigest()
-
-    def test5(key_bytes, data_bytes):
-        h = hmac.new(key_bytes[:20], data_bytes, hashlib.sha1)
-        return h.digest()
-
-    # Example usage:
-    shared_secret = "22 46 01 c6 d2 79 33 e6 15 c7 97 70 ee d7 d8 10 fb b4 a9 2c d1 e0 5d 2f dc bd cf f9 09 89 8a ac"
-    packet_data = "00 00 00 03 00 00 00 1c 10 02 00 00 00 06 6d 61 72 6b 75 73 64 55 33 3c ad 46 f3 3f 1a bb 56 9d da 6b 9b 22"
-    target_data = "e0 13 7d 6f 3e 66 ee e5 56 9c f0 86 78 a7 21 1a 77 18 22 4a"
-    key_bytes = bytes.fromhex(shared_secret)
-    data_bytes = bytes.fromhex(packet_data)
-    target_bytes = bytes.fromhex(target_data)
-    tests = [
-        (test1, "test1"),
-        (test2, "test2"),
-        (test3, "test3"),
-        (test4, "test4"),
-    ]
-
-    for test, name in tests:
-        print(f"Test {name}:")
-        result = bytes.fromhex(test(key_bytes, data_bytes))
-
-        print(result.hex())
-        print(result[::-1].hex())
-        print(result == target_bytes)
-        print(result[::-1] == target_bytes)
-
-    print(test5(key_bytes[:20], data_bytes).hex(), target_bytes.hex())
-
 
 if __name__ == '__main__':
     # test_mpint()

@@ -31,9 +31,13 @@ class SSHPacket:
     logger: ClassVar[logging.Logger] = logging.getLogger("SSHPacket")
 
     @property
+    def code_constant(self) -> SSHConstants:
+        return SSHConstants.find_by_value("SSH2_MSG", self.payload[0])
+
+    @property
     def code(self) -> str:
         try:
-            constant = SSHConstants.find_by_value("SSH2_MSG", self.payload[0])
+            constant = self.code_constant
             return f"{constant.value} ({constant.name})"
         except ValueError:
             return f':c'
