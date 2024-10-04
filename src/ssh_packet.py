@@ -46,8 +46,9 @@ class SSHPacket:
         b = max(block_size, 8)
         padding_length = 3 + b - ((8 + n1) % b) + b * k
         packet_length = n1 + padding_length + 1
-        cls.logger.debug(f'Creating packet with length {packet_length}, padding length {padding_length} ({old_padding_length}), '
-                         f'payload length {n1} - {b}')
+        cls.logger.debug(
+            f'Creating packet with length {packet_length}, padding length {padding_length} ({old_padding_length}), '
+            f'payload length {n1} - {b}')
         return cls(
             length=packet_length,
             padding_length=padding_length,
@@ -69,14 +70,16 @@ class SSHPacket:
     def request_encrypted(cls, source: BytesReadWritable, decryptor: AEADDecryptionContext,
                           mac_validator: Callable[[bytes, bytes], bool]) -> Self:
         encrypted_bytes = source.recv(9999999)
-        cls.logger.debug(f'Encrypted packet: \n{hexdump(encrypted_bytes)}')
+        if len(encrypted_bytes) == 0:
+            raise EOFError('No data received')
+        cls.logger.debug(f'[RECV] Encrypted packet: \n{hexdump(encrypted_bytes)}')
         decrypted_bytes = decryptor.update(encrypted_bytes)
-        cls.logger.debug(f'Decrypted packet: \n{hexdump(decrypted_bytes)}')
+        cls.logger.debug(f'[RECV] Decrypted packet: \n{hexdump(decrypted_bytes)}')
         writable = BytesIOReadWritable(io.BytesIO(decrypted_bytes))
         packet = cls.request(writable)
         mac = encrypted_bytes[-20:]
         if not mac_validator(decrypted_bytes[:-len(mac)], mac):
-            cls.logger.error(f'MAC mismatch: T:\n{hexdump(mac)}')
+            cls.logger.error(f'[RECV] MAC mismatch: T:\n{hexdump(mac)}')
         return packet
 
     def to_bytes(self) -> bytes:
@@ -89,10 +92,13 @@ class SSHPacket:
 
     def to_encrypted_bytes(self, encryptor: AEADEncryptionContext, mac_applicator: Callable[[bytes], bytes]) -> bytes:
         unencrypted_packet = self.to_bytes()
+        self.logger.debug(f'[SEND] Unencrypted packet: \n{hexdump(unencrypted_packet)}')
         encrypted_packet = encryptor.update(self.to_bytes())
         # mac = MAC(key, sequence_number || unencrypted_packet)
         mac = mac_applicator(unencrypted_packet)
-        return encrypted_packet + mac
+        packet_mac = encrypted_packet + mac
+        self.logger.debug(f'[SEND] Encrypted packet: \n{hexdump(packet_mac)}')
+        return packet_mac
 
     def __str__(self):
         return f'SSHPacket({self.length}, {self.padding_length}, {self.payload}, {self.random_padding}, {self.code})'

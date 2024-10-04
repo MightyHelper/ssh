@@ -23,22 +23,22 @@ class SSHSocketWrapper(BytesReadWritable):
         self.s.connect((host, port))
 
     def send(self, message: bytes) -> None:
-        self.logger.debug(f'c >> s [{len(message)}]: {repr(message)}')
+        self.logger.debug(f'c >> s [{len(message)}]: {message.hex(" ", bytes_per_sep=-16)}')
         self.s.send(message)
 
     def recv(self, n_bytes: int | None = None) -> bytes:
         if n_bytes and n_bytes < 1:
             raise ValueError(f'Invalid number of bytes to receive: {n_bytes}')
         recv = self.s.recv(n_bytes if n_bytes is not None else 35000)
-        self.logger.debug(f's >> c [{len(recv)}]: {repr(recv)}')
+        self.logger.debug(f's >> c [{len(recv)}]: {recv.hex(" ", bytes_per_sep=-16)}')
         return recv
 
     def send_packet(self, packet: SSHPacket) -> None:
-        SSHPacket.local_to_remote_sequence_number += 1
         if self.do_encryption:
             self.send(packet.to_encrypted_bytes(self.encryptor, self.mac_applicator_c2s))
         else:
             self.send(packet.to_bytes())
+        SSHPacket.local_to_remote_sequence_number += 1
 
     def recv_packet(self) -> SSHPacket:
         if self.do_encryption:

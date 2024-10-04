@@ -2,6 +2,8 @@ import hashlib
 import hmac
 import io
 import logging
+import time
+from asyncio import sleep
 from random import randint
 from types import SimpleNamespace
 
@@ -33,7 +35,12 @@ logging.basicConfig(
 
 
 def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
-    return SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_SERVICE_REQUEST.to_bytes() + service_name, 16)
+    return SSHPacket.create_from_bytes(
+        SSHConstants.SSH2_MSG_SERVICE_REQUEST.to_bytes() +
+        len(service_name).to_bytes(4, byteorder='big') +
+        service_name,
+        16
+    )
 
 
 def SSHKexdhInitPacket(public_key_bytes: bytes) -> SSHPacket:
@@ -177,24 +184,21 @@ class SSHClient:
     def mac_validator_s2c(self, data: bytes, mac: bytes) -> bool:
         self.logger.info(f"Validate MAC on \n{hexdump(data)}")
         self.logger.info(f"mac_s2c is \n{hexdump(self.exchange_parameters.mac_s2c)}")
-
-        for i in range(100):
-            c = self.mac_applicator_s2c(data, i)
-            if mac == c or mac == c[::-1]:
-                self.logger.info(f"MAC VALIDATED with offset {i} (expected {SSHPacket.local_to_remote_sequence_number})")
-                return True
+        c = self.mac_applicator_s2c(data)
+        if mac == c:
+            self.logger.info(f"MAC VALIDATED with offset {SSHPacket.local_to_remote_sequence_number}")
+            return True
         return False
 
     def mac_applicator_s2c(self, data: bytes, offset: int | None = None) -> bytes:
         offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
-        sequence_ored_with_data = offset.to_bytes(4, 'big') + data
-        hmac = self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
-        # self.logger.info(f"MAC \n{hexdump(hmac)}")
-        return hmac
+        seq_with_data = offset.to_bytes(4, 'big') + data
+        return self.create_hmac(self.exchange_parameters.mac_s2c, seq_with_data)
 
-    def mac_applicator_c2s(self, data: bytes) -> bytes:
-        sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
-        return self.create_hmac(self.exchange_parameters.mac_c2s, sequence_ored_with_data)
+    def mac_applicator_c2s(self, data: bytes, offset: int | None = None) -> bytes:
+        offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
+        seq_with_data = offset.to_bytes(4, 'big') + data
+        return self.create_hmac(self.exchange_parameters.mac_c2s, seq_with_data)
 
     def connect(self):
         self.s = SSHSocketWrapper(self.host, self.port)
@@ -204,6 +208,9 @@ class SSHClient:
         expect_markus = True
         if expect_markus:
             print(self.s.recv_packet())
+        # self.s.send(bytes.fromhex(""))
+        self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
+        # time.sleep(3)
         self.request_service('ssh-userauth')
 
     def request_service(self, service_name: str) -> None:
@@ -450,6 +457,7 @@ def test_mpint():
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7') == 0x9a378f9b2e332a7
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x02\x00\x80') == 0x80
 
+
 def main():
     ssh = SSHClient(host='localhost', port=8222)
     ssh.connect()
@@ -517,8 +525,8 @@ def main2():
 
     print(test5(key_bytes[:20], data_bytes).hex(), target_bytes.hex())
 
+
 if __name__ == '__main__':
     # test_mpint()
     main()
     # main2()
-
