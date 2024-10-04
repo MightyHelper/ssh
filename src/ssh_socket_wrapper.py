@@ -6,6 +6,7 @@ from typing import ClassVar, Callable
 from cryptography.hazmat.primitives.ciphers import AEADEncryptionContext, AEADDecryptionContext, Cipher
 
 from src.bytes_read_writable import BytesReadWritable
+from src.packet import Packet
 from src.ssh_packet import SSHPacket
 
 
@@ -34,7 +35,9 @@ class SSHSocketWrapper(BytesReadWritable):
         self.logger.debug(f's >> c [{len(recv)}]: {recv.hex(" ", bytes_per_sep=-16)}')
         return recv
 
-    def send_packet(self, packet: SSHPacket) -> None:
+    def send_packet(self, packet: SSHPacket | Packet) -> None:
+        if isinstance(packet, Packet):
+            packet = SSHPacket.create_from_bytes(packet.payload(), 16 if self.do_encryption else 8)
         if self.do_encryption:
             self.send(packet.to_encrypted_bytes(self.encryptor, self.mac_applicator_c2s))
         else:
