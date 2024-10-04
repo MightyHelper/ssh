@@ -45,7 +45,7 @@ class SSHKEXInitPacket:
     def from_bytes(cls, data: bytes) -> Self:
         myio = io.BytesIO(data)
         kex_init = myio.read(1)
-        assert kex_init == bytes([SSHConstants.SSH_MSG_KEXINIT])
+        assert kex_init == bytes([SSHConstants.SSH2_MSG_KEXINIT])
         _cookie = myio.read(16)
         read_name_list = lambda: myio.read(int.from_bytes(myio.read(4), 'big')).decode('utf-8').split(',')
         return cls(
@@ -65,7 +65,7 @@ class SSHKEXInitPacket:
 
     def to_bytes(self) -> bytes:
         myio = io.BytesIO()
-        myio.write(bytes([SSHConstants.SSH_MSG_KEXINIT]))
+        myio.write(bytes([SSHConstants.SSH2_MSG_KEXINIT]))
         myio.write(os.urandom(16))  # Cookie
         write_name_list = lambda x: myio.write(struct.pack('>I', len(','.join(x))) + ','.join(x).encode('utf-8'))
         write_name_list(self.kex_algorithms)

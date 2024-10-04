@@ -7,10 +7,11 @@ from random import randint
 import rich.table
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
-from cryptography.hazmat.primitives.ciphers.algorithms import AES, AES128
+from cryptography.hazmat.primitives.ciphers.algorithms import AES128
 from rich.console import Console
 from rich.logging import RichHandler
 
+from src.common import hexdump
 from src.constants import SSHConstants
 from src.group14_prime import GROUP14_PRIME
 from src.kex_init_packet import SSHKEXInitPacket
@@ -31,18 +32,18 @@ logging.basicConfig(
 
 
 def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
-    return SSHPacket.create_from_bytes(SSHConstants.SSH_MSG_SERVICE_REQUEST.to_bytes() + service_name)
+    return SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_SERVICE_REQUEST.to_bytes() + service_name, 16)
 
 
 def SSHKexdhInitPacket(public_key_bytes: bytes) -> SSHPacket:
     myio = io.BytesIO()
-    myio.write(bytes([SSHConstants.SSH_MSG_KEXDH_INIT]))
+    myio.write(bytes([SSHConstants.SSH2_MSG_KEXDH_INIT]))
     myio.write(public_key_bytes)
     return SSHPacket.create_from_bytes(myio.getvalue())
 
 
 def SSHNewKeysPacket() -> SSHPacket:
-    return SSHPacket.create_from_bytes(SSHConstants.SSH_MSG_NEWKEYS.to_bytes())
+    return SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_NEWKEYS.to_bytes())
 
 
 class ExchangeParameters:
@@ -156,7 +157,8 @@ class SSHClient:
     exchange_parameters: ExchangeParameters
     """The parameters for the key exchange"""
 
-    cipher: Cipher
+    cipher_c2s: Cipher
+    cipher_s2c: Cipher
     encryptor: AEADEncryptionContext
     decryptor: AEADDecryptionContext
 
@@ -172,25 +174,36 @@ class SSHClient:
         self.exchange_parameters = ExchangeParameters()
 
     def create_hmac(self, key: bytes, message: bytes) -> bytes:
-        return hmac.new(key, message, hashlib.sha1).digest()
+        return hmac.HMAC(key, message, hashlib.sha1).digest()
 
-    def mac_applicator(self, data: bytes) -> bytes:
+    def mac_applicator_s2c(self, data: bytes) -> bytes:
+        self.logger.info(f"MAC for \n{hexdump(data)}")
+        for i in range(0, 20):
+            sequence_ored_with_data = i.to_bytes(4, 'big') + data
+            dig = self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
+            self.logger.info(f'MAC {i}: \n{hexdump(dig)}')
         sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
-        return self.create_hmac(self.exchange_parameters.k_bytes, sequence_ored_with_data)
+        return self.create_hmac(self.exchange_parameters.mac_s2c, sequence_ored_with_data)
+
+    def mac_applicator_c2s(self, data: bytes) -> bytes:
+        sequence_ored_with_data = SSHPacket.local_to_remote_sequence_number.to_bytes(4, 'big') + data
+        return self.create_hmac(self.exchange_parameters.mac_c2s, sequence_ored_with_data)
 
     def connect(self):
         self.s = SSHSocketWrapper(self.host, self.port)
         self.logger.info('Connected to server')
         self._exchange_versions()
         self.my_key_exchange()
-        print(self.s.recv_packet())
-        # self.request_service('ssh-userauth')
+        expect_markus = True
+        if expect_markus:
+            print(self.s.recv_packet())
+        self.request_service('ssh-userauth')
 
     def request_service(self, service_name: str) -> None:
         self.s.send_packet(SSHMessageServiceRequestPacket(service_name.encode('utf-8')))
         response = self.s.recv_packet()
         self.logger.info(f'Response: {response}')
-        assert response == SSHConstants.SSH_MSG_SERVICE_ACCEPT.to_bytes() + service_name.encode(
+        assert response == SSHConstants.SSH2_MSG_SERVICE_ACCEPT.to_bytes() + service_name.encode(
             'utf-8'), "Service not accepted"
 
     def my_key_exchange(self):
@@ -272,10 +285,11 @@ class SSHClient:
         self.s.do_encryption = True
         self.s.encryptor = self.encryptor
         self.s.decryptor = self.decryptor
-        self.s.mac_calculator = self.mac_applicator
+        self.s.mac_calculator_s2c = self.mac_applicator_s2c
+        self.s.mac_calculator_c2s = self.mac_applicator_c2s
 
     def expect_new_keys(self):
-        assert self.s.recv_packet().payload == SSHConstants.SSH_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
+        assert self.s.recv_packet().payload == SSHConstants.SSH2_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
         # Send the new keys message
         self.s.send_packet(SSHNewKeysPacket())
         self.logger.info("Habemus New Keys!")
@@ -285,30 +299,37 @@ class SSHClient:
 
         self.exchange_parameters.k = shared_k
         self.exchange_parameters.session_id = self.exchange_parameters.h_bytes
-        self.logger.info(f'Derived key: {self.exchange_parameters.k}\n{hexdump(self.exchange_parameters.k)}')
-        self.logger.info(f'Buffer: {self.exchange_parameters._buffer}\n{hexdump(self.exchange_parameters._buffer)}')
-        self.logger.info(f'hash: {self.exchange_parameters.h_bytes}\n{hexdump(self.exchange_parameters.h_bytes)}')
-        self.logger.info(
-            f'[A] IV0 C2S: {self.exchange_parameters.iv0_c2s}\n{hexdump(self.exchange_parameters.iv0_c2s)}')
-        self.logger.info(
-            f'[B] IV0 S2C: {self.exchange_parameters.iv0_s2c}\n{hexdump(self.exchange_parameters.iv0_s2c)}')
-        self.logger.info(
-            f'[C] Key C2S: {self.exchange_parameters.key_c2s}\n{hexdump(self.exchange_parameters.key_c2s)}')
-        self.logger.info(
-            f'[D] Key S2C: {self.exchange_parameters.key_s2c}\n{hexdump(self.exchange_parameters.key_s2c)}')
-        self.cipher_c2s = Cipher(AES128(self.exchange_parameters.key_c2s[:16]),
-                                 modes.CTR(self.exchange_parameters.iv0_c2s[:16]), default_backend())
-        self.cipher_s2c = Cipher(AES128(self.exchange_parameters.key_s2c[:16]),
-                                 modes.CTR(self.exchange_parameters.iv0_s2c[:16]), default_backend())
+        self.debug_parameter("Derived key", self.exchange_parameters.k)
+        self.debug_parameter("Buffer", self.exchange_parameters._buffer)
+        self.debug_parameter("hash", self.exchange_parameters.h_bytes)
+        self.debug_parameter("[A] IV0 C2S", self.exchange_parameters.iv0_c2s)
+        self.debug_parameter("[B] IV0 S2C", self.exchange_parameters.iv0_s2c)
+        self.debug_parameter("[C] Key C2S", self.exchange_parameters.key_c2s)
+        self.debug_parameter("[D] Key S2C", self.exchange_parameters.key_s2c)
+        self.debug_parameter("[E] MAC C2S", self.exchange_parameters.mac_c2s)
+        self.debug_parameter("[F] MAC S2C", self.exchange_parameters.mac_s2c)
+        self.cipher_c2s = Cipher(
+            AES128(self.exchange_parameters.key_c2s[:16]),
+            modes.CTR(self.exchange_parameters.iv0_c2s[:16]),
+            default_backend()
+        )
+        self.cipher_s2c = Cipher(
+            AES128(self.exchange_parameters.key_s2c[:16]),
+            modes.CTR(self.exchange_parameters.iv0_s2c[:16]),
+            default_backend()
+        )
         self.encryptor = self.cipher_c2s.encryptor()
         self.decryptor = self.cipher_s2c.decryptor()
+
+    def debug_parameter(self, name, param):
+        self.logger.info(f'{name}: {param}\n{hexdump(param)}')
 
     def receive_remote_keys(self):
         self.logger.info(f'waiting for server response')
         # 3. Receive the server's public key
         server_payload = self.s.recv_packet().payload
         parse_server_payload = io.BytesIO(server_payload)
-        assert parse_server_payload.read(1) == bytes([SSHConstants.SSH_MSG_KEXDH_REPLY])
+        assert parse_server_payload.read(1) == bytes([SSHConstants.SSH2_MSG_KEXDH_REPLY])
 
         self.exchange_parameters.k_s = self.parse_server_public_key(parse_server_payload)
 
@@ -387,17 +408,6 @@ class SSHClient:
         self.exchange_parameters.v_s = repr(self.remote_ssh_version).encode('utf-8')
 
 
-def hexdump(value: bytes | int) -> str:
-    if not isinstance(value, bytes):
-        return hexdump(value.to_bytes((value.bit_length() + 7) // 8, byteorder='big'))
-    out = ""
-    for i in range(0, len(value), 16):
-        chunk = value[i:i + 16]
-        out += f"{i:08x}: {' '.join(f'{b:02x}' for b in chunk): <48} {''.join(chr(b) if 32 <= b < 127 else '.' for b in chunk)}\n"
-
-    return out
-
-
 def test_mpint():
     """
          value (hex)        representation (hex)
@@ -433,40 +443,6 @@ def test_mpint():
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x08\x09\xa3\x78\xf9\xb2\xe3\x32\xa7') == 0x9a378f9b2e332a7
     assert SSHClient.decode_mpint(b'\x00\x00\x00\x02\x00\x80') == 0x80
 
-
-def write_byt(byt: io.BytesIO, ssh: SSHClient):
-    def w(b: bytes):
-        ssh.bytes_logger.info(f'Send: {repr(b)}')
-        byt.write(b)
-
-    return w
-
-
-def read_byt(byt: io.BytesIO, ssh: SSHClient):
-    def r(n: int = 1024) -> bytes:
-        read = byt.read(n)
-        ssh.bytes_logger.info(f'Recv[{n}]: {repr(read)}')
-        return read
-
-    return r
-
-
-def test_ssh_packet():
-    ssh = SSHClient(host='localhost', port=8222)
-    for message in [
-        "Hello World",
-        "This is a test" * 100,
-        "\x1b[33m125386721903 gernge gA\x1b[0m"
-    ]:
-        byt = io.BytesIO()
-        ssh.send = write_byt(byt, ssh)
-        ssh.s.send_packet(SSHPacket.create_from_bytes(message.encode('utf-8')))
-        byt = io.BytesIO(byt.getvalue())
-        ssh.recv = read_byt(byt, ssh)
-        value = ssh.s.recv_packet().payload.decode('utf-8')
-        assert message == value, f"{message} {value}"
-
-
 def main():
     ssh = SSHClient(host='localhost', port=8222)
     ssh.connect()
@@ -474,5 +450,4 @@ def main():
 
 if __name__ == '__main__':
     # test_mpint()
-    # test_ssh_packet()
     main()

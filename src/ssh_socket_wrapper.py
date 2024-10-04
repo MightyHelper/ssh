@@ -15,7 +15,8 @@ class SSHSocketWrapper(BytesReadWritable):
     encryptor: AEADEncryptionContext | None = None
     decryptor: AEADDecryptionContext | None = None
     cipher: Cipher | None = None
-    mac_calculator: Callable[[bytes], bytes] | None = None
+    mac_calculator_s2c: Callable[[bytes], bytes] | None = None
+    mac_calculator_c2s: Callable[[bytes], bytes] | None = None
 
     def __init__(self, host: str, port: int):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,13 +36,13 @@ class SSHSocketWrapper(BytesReadWritable):
     def send_packet(self, packet: SSHPacket) -> None:
         SSHPacket.local_to_remote_sequence_number += 1
         if self.do_encryption:
-            self.send(packet.to_encrypted_bytes(self.encryptor, self.mac_calculator))
+            self.send(packet.to_encrypted_bytes(self.encryptor, self.mac_calculator_c2s))
         else:
             self.send(packet.to_bytes())
 
     def recv_packet(self) -> SSHPacket:
         if self.do_encryption:
-            packet = SSHPacket.request_encrypted(self, self.decryptor, self.mac_calculator)
+            packet = SSHPacket.request_encrypted(self, self.decryptor, self.mac_calculator_s2c)
         else:
             packet = SSHPacket.request(self)
         SSHPacket.remote_to_local_sequence_number += 1
