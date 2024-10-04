@@ -14,6 +14,8 @@ from cryptography.hazmat.primitives.ciphers.algorithms import AES128
 from rich.console import Console
 from rich.logging import RichHandler
 
+from src.bytes_io_read_writables import BytesIOReadWritable
+from src.bytes_read_writable import BytesReadWritable
 from src.common import hexdump
 from src.constants import SSHConstants
 from src.group14_prime import GROUP14_PRIME
@@ -33,8 +35,15 @@ logging.basicConfig(
     handlers=[RichHandler(rich_tracebacks=True, console=console)],
 )
 
+def encode_uint32(data: int) -> bytes:
+    return data.to_bytes(4, byteorder='big')
+
 def encode_str(data: bytes) -> bytes:
-    return len(data).to_bytes(4, byteorder='big') + data
+    return encode_uint32(len(data)) + data
+
+def request_uint32(source: BytesReadWritable) -> int:
+    return int.from_bytes(source.recv(4), byteorder='big')
+
 
 def SSHMessageServiceRequestPacket(service_name: bytes) -> SSHPacket:
     return SSHPacket.create_from_bytes(
@@ -64,6 +73,25 @@ def SSHMessageUserAuthRequestPacket(username: bytes, service_name: bytes, method
         encode_str(password),
         16
     )
+
+def SSHMessageChannelOpenPacket(channel_type: bytes, sender_channel: int, initial_window_size: int, maximum_packet_size: int) -> SSHPacket:
+    return SSHPacket.create_from_bytes(
+        SSHConstants.SSH2_MSG_CHANNEL_OPEN.to_bytes() +
+        encode_str(channel_type) +
+        encode_uint32(sender_channel) +
+        encode_uint32(initial_window_size) +
+        encode_uint32(maximum_packet_size)
+    )
+
+def SSHMessageChannelRequestPacket(sender_channel: int, request_type: bytes, want_reply: bool, request_data: bytes) -> SSHPacket:
+    return SSHPacket.create_from_bytes(
+        SSHConstants.SSH2_MSG_CHANNEL_REQUEST.to_bytes() +
+        encode_uint32(sender_channel) +
+        encode_str(request_type) +
+        bytes([1 if want_reply else 0]) +
+        encode_str(request_data)
+    )
+
 
 class ExchangeParameters:
     v_c: bytes
@@ -188,22 +216,24 @@ class SSHClient:
         return hmac.HMAC(key[:20], message, hashlib.sha1).digest()
 
     def mac_validator_s2c(self, data: bytes, mac: bytes) -> bool:
-        self.logger.info(f"Validate MAC #{SSHPacket.local_to_remote_sequence_number} on \n{hexdump(data)}")
+        self.logger.info(f"Validate MAC #{SSHPacket.remote_to_local_sequence_number} on \n{hexdump(data)}")
         self.logger.info(f"mac_s2c is \n{hexdump(self.exchange_parameters.mac_s2c)}")
         c = self.mac_applicator_s2c(data)
         if mac == c:
-            self.logger.info(f"MAC VALIDATED with offset {SSHPacket.local_to_remote_sequence_number}")
+            self.logger.info(f"MAC VALIDATED with offset {SSHPacket.remote_to_local_sequence_number}")
             return True
+        c = self.mac_applicator_s2c(data)
+        self.logger.warning(f"MAC NOT VALIDATED with offset {SSHPacket.remote_to_local_sequence_number}\n{hexdump(mac)}\n{hexdump(c)}")
         return False
 
     def mac_applicator_s2c(self, data: bytes, offset: int | None = None) -> bytes:
         offset = offset if offset is not None else SSHPacket.remote_to_local_sequence_number
-        seq_with_data = offset.to_bytes(4, 'big') + data
+        seq_with_data = encode_uint32(offset) + data
         return self.create_hmac(self.exchange_parameters.mac_s2c, seq_with_data)
 
     def mac_applicator_c2s(self, data: bytes, offset: int | None = None) -> bytes:
         offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
-        seq_with_data = offset.to_bytes(4, 'big') + data
+        seq_with_data = encode_uint32(offset) + data
         return self.create_hmac(self.exchange_parameters.mac_c2s, seq_with_data)
 
     def connect(self):
@@ -218,17 +248,67 @@ class SSHClient:
         self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
         # time.sleep(3)
         self.request_service('ssh-userauth')
-        self.begin_password_auth()
+        self.password_auth()
+        chan = self.open_session_channel(0)
+        self.run_exec_command('echo hi', chan)
 
-    def begin_password_auth(self):
-        """
-        byte      SSH_MSG_USERAUTH_REQUEST
-        string    user name
-        string    service name
-        string    "password"
-        boolean   FALSE
-        string    plaintext password in ISO-10646 UTF-8 encoding [RFC3629]
-        """
+    def run_exec_command(self, command: str, channel_id: int = 0):
+        self.s.send_packet(SSHMessageChannelRequestPacket(
+            sender_channel=channel_id,
+            request_type=b'exec',
+            want_reply=True,
+            request_data=command.encode('utf-8')
+        ))
+        response = self.s.recv_packet()
+        self.logger.info(f'Response: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_WINDOW_ADJUST, f"Window not adjusted... {response.code}"
+        # response = self.s.recv_packet()
+        # assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_SUCCESS, f"Response... {response.code}"
+        # self.logger.info(f'Command executed: {response.payload}')
+
+
+
+    def deal_with_global_request(self):
+        response = self.s.recv_packet()
+        self.logger.info(f'Global request: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_GLOBAL_REQUEST, f"Global request not received {response.code}"
+
+        # Respond with SSH2_MSG_REQUEST_FAILURE
+        self.s.send_packet(SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_REQUEST_FAILURE.to_bytes(1), 16))
+
+    def open_session_channel(self, channel_id: int = 0):
+        self.s.send_packet(SSHMessageChannelOpenPacket(
+            channel_type=b'session',
+            sender_channel=channel_id,
+            initial_window_size=0x100000,
+            maximum_packet_size=0x4000
+        ))
+        self.deal_with_global_request()
+        response = self.s.recv_packet()
+        self.logger.info(f'Response: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, f"Channel not open {response.code}"
+        self.logger.info(f'Channel open: {response.payload}')
+        bio = BytesIOReadWritable(io.BytesIO(response.payload))
+        typ = bio.recv(1)
+        recipient_channel = request_uint32(bio)
+        sender_channel = request_uint32(bio)
+        initial_window_size = request_uint32(bio)
+        maximum_packet_size = request_uint32(bio)
+        self.logger.info(f'Channel open: {typ=} {recipient_channel=} {sender_channel=} {initial_window_size=} {maximum_packet_size=}')
+        return sender_channel
+
+
+
+    def password_auth(self):
+        self.s.send_packet(SSHMessageUserAuthRequestPacket(
+            username=b'alakran',
+            service_name=b'ssh-connection',
+            method_name=b'password',
+            password=b'nalanran'
+        ))
+        response = self.s.recv_packet()
+        self.logger.info(f'Response: {response}')
+        assert response.code_constant == SSHConstants.SSH2_MSG_USERAUTH_SUCCESS, f"Auth not successful {response.code}"
 
 
 

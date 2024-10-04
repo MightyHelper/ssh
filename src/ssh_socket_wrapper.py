@@ -21,6 +21,7 @@ class SSHSocketWrapper(BytesReadWritable):
     def __init__(self, host: str, port: int):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((host, port))
+        self.logger.setLevel(logging.ERROR)
 
     def send(self, message: bytes) -> None:
         self.logger.debug(f'c >> s [{len(message)}]: {message.hex(" ", bytes_per_sep=-16)}')
