@@ -45,6 +45,7 @@ class SSHSocketWrapper(BytesReadWritable):
             packet = SSHPacket.request_encrypted(self, self.decryptor, self.mac_validator_s2c)
         else:
             packet = SSHPacket.request(self)
+        self.logger.debug(f'Received packet[{SSHPacket.remote_to_local_sequence_number}]: {packet.code}')
         SSHPacket.remote_to_local_sequence_number += 1
         return packet
 

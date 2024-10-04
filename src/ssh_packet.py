@@ -73,12 +73,12 @@ class SSHPacket:
         if len(encrypted_bytes) == 0:
             raise EOFError('No data received')
         cls.logger.debug(f'[RECV] Encrypted packet: \n{hexdump(encrypted_bytes)}')
-        decrypted_bytes = decryptor.update(encrypted_bytes)
+        decrypted_bytes = decryptor.update(encrypted_bytes[:-20])
         cls.logger.debug(f'[RECV] Decrypted packet: \n{hexdump(decrypted_bytes)}')
         writable = BytesIOReadWritable(io.BytesIO(decrypted_bytes))
         packet = cls.request(writable)
         mac = encrypted_bytes[-20:]
-        if not mac_validator(decrypted_bytes[:-len(mac)], mac):
+        if not mac_validator(decrypted_bytes, mac):
             cls.logger.error(f'[RECV] MAC mismatch: T:\n{hexdump(mac)}')
         return packet
 

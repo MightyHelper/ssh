@@ -182,7 +182,7 @@ class SSHClient:
         return hmac.HMAC(key[:20], message, hashlib.sha1).digest()
 
     def mac_validator_s2c(self, data: bytes, mac: bytes) -> bool:
-        self.logger.info(f"Validate MAC on \n{hexdump(data)}")
+        self.logger.info(f"Validate MAC #{SSHPacket.local_to_remote_sequence_number} on \n{hexdump(data)}")
         self.logger.info(f"mac_s2c is \n{hexdump(self.exchange_parameters.mac_s2c)}")
         c = self.mac_applicator_s2c(data)
         if mac == c:
@@ -196,7 +196,7 @@ class SSHClient:
         return self.create_hmac(self.exchange_parameters.mac_s2c, seq_with_data)
 
     def mac_applicator_c2s(self, data: bytes, offset: int | None = None) -> bytes:
-        offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
+        offset = offset if offset is not None else SSHPacket.remote_to_local_sequence_number
         seq_with_data = offset.to_bytes(4, 'big') + data
         return self.create_hmac(self.exchange_parameters.mac_c2s, seq_with_data)
 
