@@ -12,3 +12,7 @@ class BytesIOReadWritable(BytesReadWritable):
 
     def send(self, message: bytes) -> None:
         self.data.write(message)
+
+    @classmethod
+    def of(cls, byt: bytes):
+        return cls(io.BytesIO(byt))

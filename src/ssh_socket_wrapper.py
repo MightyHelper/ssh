@@ -37,7 +37,7 @@ class SSHSocketWrapper(BytesReadWritable):
 
     def send_packet(self, packet: SSHPacket | Packet) -> None:
         if isinstance(packet, Packet):
-            packet = SSHPacket.create_from_bytes(packet.payload(), 16 if self.do_encryption else 8)
+            packet = packet.packet(16 if self.do_encryption else 8)
         if self.do_encryption:
             self.send(packet.to_encrypted_bytes(self.encryptor, self.mac_applicator_c2s))
         else:
