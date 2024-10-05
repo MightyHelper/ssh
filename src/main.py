@@ -1,9 +1,12 @@
-import hashlib
 import io
 import logging
+import os
 import sys
 from random import randint
 
+import rich.table
+import rich.table
+import rich.table
 import rich.table
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
@@ -13,13 +16,15 @@ from rich.logging import RichHandler
 
 from src.bytes_io_read_writables import BytesIOReadWritable
 from src.bytes_read_writable import BytesReadWritable
-from src.common import hexdump, encode_uint32, encode_str, request_uint32, request_byte, request_str, \
-  encode_mpint, request_mpint, create_hmac
+from src.common import hexdump, encode_uint32, request_str, \
+  request_mpint, create_hmac
 from src.constants import SSHConstants
+from src.exchange_parameters import ExchangeParameters
 from src.group14_prime import GROUP14_PRIME
-from src.kex_init_packet import SSHKEXInitPacket
 from src.packet import SSHMessageChannelOpenPacket, SSHMessageChannelRequestPacket, SSHNewKeysPacket, \
-  SSHKexdhInitPacket, SSHMessageServiceRequestPacket, SSHMessageUserAuthRequestPacket
+  SSHKexdhInitPacket, SSHMessageServiceRequestPacket, SSHMessageUserAuthRequestPacket, SSHMessageChannelDataPacket, \
+  SSHMessageGlobalRequestPacket, SSHMessageRequestFailurePacket, SSHMessageChannelOpenConfirmationPacket, \
+  SSHKEXInitPacket
 from src.ssh_packet import SSHPacket
 from src.ssh_socket_wrapper import SSHSocketWrapper
 from src.version import SSHVersion
@@ -34,97 +39,6 @@ logging.basicConfig(
   datefmt='[%X]',
   handlers=[RichHandler(rich_tracebacks=True, console=console)],
 )
-
-class ExchangeParameters:
-  v_c: bytes
-  """Client's identification string (CR and LF must not be included)"""
-  v_s: bytes
-  """Server's identification string (CR and LF must not be included)"""
-  i_c: bytes
-  """Client's SSH_MSG_KEXINIT"""
-  i_s: bytes
-  """Server's SSH_MSG_KEXINIT"""
-  k_s: bytes
-  """Server's public host key"""
-  p: int
-  """Safe prime"""
-  q: int
-  """Subprime: Actually not computed, just estimated"""
-  g: int
-  """Generator for subgroup"""
-  x: int
-  """Private key"""
-  e: int
-  """Public key"""
-  y: int | None
-  """Server's private key"""
-  f: int
-  """Server's public key"""
-  k: int
-  """Shared secret"""
-  session_id: bytes
-  """The session ID (used for deriving keys, the first exchange hash)"""
-
-  @property
-  def e_bytes(self) -> bytes:
-    return encode_mpint(self.e)
-
-  @property
-  def k_bytes(self) -> bytes:
-    return encode_mpint(self.k)
-
-  @property
-  def f_bytes(self) -> bytes:
-    return encode_mpint(self.f)
-
-  @property
-  def _buffer(self) -> bytes:
-    parts = [
-      encode_str(self.v_c[:-1]),
-      encode_str(self.v_s),
-      encode_str(self.i_c),
-      encode_str(self.i_s),
-      encode_str(self.k_s),
-      self.e_bytes,
-      self.f_bytes,
-      self.k_bytes,
-    ]
-    return b''.join(parts)
-
-  @property
-  def h_bytes(self) -> bytes:
-    """Exchange hash"""
-    return hashlib.sha256(self._buffer).digest()
-
-  @property
-  def iv0_c2s(self) -> bytes:
-    """Initial IV client to server"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'A' + self.h_bytes).digest()
-
-  @property
-  def iv0_s2c(self) -> bytes:
-    """Initial IV server to client"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'B' + self.h_bytes).digest()
-
-  @property
-  def key_c2s(self) -> bytes:
-    """Encryption key client to server"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'C' + self.h_bytes).digest()
-
-  @property
-  def key_s2c(self) -> bytes:
-    """Encryption key server to client"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'D' + self.h_bytes).digest()
-
-  @property
-  def mac_c2s(self) -> bytes:
-    """MAC key client to server"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'E' + self.h_bytes).digest()
-
-  @property
-  def mac_s2c(self) -> bytes:
-    """MAC key server to client"""
-    return hashlib.sha256(encode_mpint(self.k) + self.h_bytes + b'F' + self.h_bytes).digest()
 
 
 class SSHClient:
@@ -154,7 +68,6 @@ class SSHClient:
     self.block_size = 35000
     self.exchange_parameters = ExchangeParameters()
 
-
   def mac_validator_s2c(self, data: bytes, mac: bytes) -> bool:
     self.logger.info(f"Validate MAC #{SSHPacket.remote_to_local_sequence_number} on \n{hexdump(data)}")
     self.logger.info(f"mac_s2c is \n{hexdump(self.exchange_parameters.mac_s2c)}")
@@ -182,7 +95,7 @@ class SSHClient:
     self.logger.info('Connected to server')
     self._exchange_versions()
     self.my_key_exchange()
-    expect_markus = False
+    expect_markus = True
     if expect_markus:
       print(self.s.recv_packet())
     self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
@@ -203,21 +116,16 @@ class SSHClient:
       self.logger.info(f'Waiting for data... {response.code}')
       response = self.s.recv_packet()
 
-    self.logger.info(f'Response: {response}')
-    assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_DATA, f"Channel data... {response.code}"
-    payload = BytesIOReadWritable(io.BytesIO(response.payload))
-    code = request_byte(payload)
-    recipient = request_uint32(payload)
-    data = request_str(payload)
-    self.logger.info(f'Channel data: {response.payload} {recipient=} {data=}')
+    channel_data = SSHMessageChannelDataPacket.from_ssh_packet(response)
+    self.logger.info(f'Response: {channel_data}')
+    self.logger.info(f'Channel data: {response.payload} {channel_data.recipient_channel=} {channel_data.data=}')
 
   def deal_with_global_request(self):
     response = self.s.recv_packet()
-    self.logger.info(f'Global request: {response}')
-    assert response.code_constant == SSHConstants.SSH2_MSG_GLOBAL_REQUEST, f"Global request not received {response.code}"
+    global_request = SSHMessageGlobalRequestPacket.from_ssh_packet(response)
+    self.logger.info(f'Global request: {global_request}')
 
-    # Respond with SSH2_MSG_REQUEST_FAILURE
-    self.s.send_packet(SSHPacket.create_from_bytes(SSHConstants.SSH2_MSG_REQUEST_FAILURE.to_bytes(1), 16))
+    self.s.send_packet(SSHMessageRequestFailurePacket())
 
   def open_session_channel(self, channel_id: int = 0):
     self.s.send_packet(SSHMessageChannelOpenPacket(
@@ -228,18 +136,9 @@ class SSHClient:
     ))
     self.deal_with_global_request()
     response = self.s.recv_packet()
-    self.logger.info(f'Response: {response}')
-    assert response.code_constant == SSHConstants.SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, f"Channel not open {response.code}"
-    self.logger.info(f'Channel open: {response.payload}')
-    bio = BytesIOReadWritable(io.BytesIO(response.payload))
-    typ = bio.recv(1)
-    recipient_channel = request_uint32(bio)
-    sender_channel = request_uint32(bio)
-    initial_window_size = request_uint32(bio)
-    maximum_packet_size = request_uint32(bio)
-    self.logger.info(
-      f'Channel open: {response.code=} {recipient_channel=} {sender_channel=} {initial_window_size=} {maximum_packet_size=}')
-    return sender_channel
+    channel_open_confirmation = SSHMessageChannelOpenConfirmationPacket.from_ssh_packet(response)
+    self.logger.info(f'Channel open: {channel_open_confirmation}')
+    return channel_open_confirmation.sender_channel
 
   def password_auth(self):
     self.s.send_packet(SSHMessageUserAuthRequestPacket(
@@ -261,33 +160,32 @@ class SSHClient:
   def my_key_exchange(self):
     """ Sends the initial key exchange message to the server with format """
     # 1. Send the initial key exchange message
-    local_key = SSHKEXInitPacket(
-      kex_algorithms=['diffie-hellman-group14-sha256'],
-      server_host_key_algorithms=['rsa-sha2-256'],
-      encryption_algorithms_client_to_server=['aes128-ctr'],
-      encryption_algorithms_server_to_client=['aes128-ctr'],
-      mac_algorithms_client_to_server=['hmac-sha1'],
-      mac_algorithms_server_to_client=['hmac-sha1'],
-      compression_algorithms_client_to_server=['none'],
-      compression_algorithms_server_to_client=['none'],
-      languages_client_to_server=[''],
-      languages_server_to_client=[''],
+    local_key2 = SSHKEXInitPacket(
+      cookie=os.urandom(16),
+      kex_algorithms=[b'diffie-hellman-group14-sha256'],
+      server_host_key_algorithms=[b'rsa-sha2-256'],
+      encryption_algorithms_client_to_server=[b'aes128-ctr'],
+      encryption_algorithms_server_to_client=[b'aes128-ctr'],
+      mac_algorithms_client_to_server=[b'hmac-sha1'],
+      mac_algorithms_server_to_client=[b'hmac-sha1'],
+      compression_algorithms_client_to_server=[b'none'],
+      compression_algorithms_server_to_client=[b'none'],
+      languages_client_to_server=[b''],
+      languages_server_to_client=[b''],
       first_kex_packet_follows=False,
       reserved=0
     )
     if self.logger.level <= logging.INFO:
-      console.print(f"Local key:", local_key)
-    self.exchange_parameters.i_c = local_key.to_bytes()
-    self.s.send_packet(SSHPacket.create_from_bytes(self.exchange_parameters.i_c))
-
-    # 2. Receive the server's key exchange message
-    self.exchange_parameters.i_s = self.s.recv_packet().payload
-    remote_key = SSHKEXInitPacket.from_bytes(self.exchange_parameters.i_s)
+      console.print(f"Local key:", local_key2)
+    self.exchange_parameters.i_c = local_key2.packet().payload
+    self.s.send_packet(local_key2)
+    packet = self.s.recv_packet()
+    self.exchange_parameters.i_s = packet.payload
+    remote_key = SSHKEXInitPacket.from_ssh_packet(packet)
     if self.logger.level <= logging.INFO:
       console.print(f"Remote key:", remote_key)
 
-    remote_key.assert_supports_algorithms(local_key)
-    # 3. Perform the DH key exchange
+    remote_key.assert_supports_algorithms(local_key2)
     self.perform_dh_key_exchange()
 
   def perform_dh_key_exchange(self):

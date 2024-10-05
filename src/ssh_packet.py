@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.ciphers import AEADDecryptionContext, AEADEn
 
 from src.bytes_io_read_writables import BytesIOReadWritable
 from src.bytes_read_writable import BytesReadWritable
-from src.common import hexdump
+from src.common import hexdump, encode_uint32, encode_byte
 from src.constants import SSHConstants
 
 
@@ -90,7 +90,7 @@ class SSHPacket:
       raise EOFError('No data received')
     cls.logger.debug(f'[RECV] Encrypted packet: \n{hexdump(encrypted_bytes + mac)}')
     cls.logger.debug(f'[RECV] Decrypted packet: \n{hexdump(decrypted_bytes)}')
-    writable = BytesIOReadWritable(io.BytesIO(decrypted_bytes))
+    writable = BytesIOReadWritable.of(decrypted_bytes)
     packet = cls.request(writable)
     if not mac_validator(decrypted_bytes, mac):
       cls.logger.error(f'[RECV] MAC mismatch: T:\n{hexdump(mac)}')
@@ -98,10 +98,10 @@ class SSHPacket:
 
   def to_bytes(self) -> bytes:
     return (
-      self.length.to_bytes(4, 'big')
-      + self.padding_length.to_bytes(1, 'big')
-      + self.payload
-      + self.random_padding
+      encode_uint32(self.length) +
+      encode_byte(self.padding_length) +
+      self.payload +
+      self.random_padding
     )
 
   def to_encrypted_bytes(self, encryptor: AEADEncryptionContext, mac_applicator: Callable[[bytes], bytes]) -> bytes:
