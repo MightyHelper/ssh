@@ -1,0 +1,969 @@
+[22:42:46] INFO     SSHClient: Connected to server                                                                                                                                                      main.py:82
+           DEBUG    SSHClient: My SSH version: SSH-2.0-LeoFedeSsh0.1 Un trabajo para un tp                                                                                                             main.py:261
+           DEBUG    SSHSocketWrapper: c >> s [46]: 5353482d322e302d4c656f4665646553 7368302e3120556e2074726162616a6f 207061726120756e2074700d0d0a                                         ssh_socket_wrapper.py:28
+           DEBUG    SSHSocketWrapper: s >> c [21]: 5353482d322e302d4f70656e5353485f 392e300d0a                                                                                            ssh_socket_wrapper.py:35
+           DEBUG    SSHClient: Remote SSH version: SSH-2.0-OpenSSH_9.0                                                                                                                                 main.py:266
+Local key:
+SSHKEXInitPacket(
+    cookie=b'$\x1a\x7fM\x86E!\xafH\x14X\xfd<\xf8\x90\x93',
+    kex_algorithms=[b'diffie-hellman-group14-sha256'],
+    server_host_key_algorithms=[b'rsa-sha2-256'],
+    encryption_algorithms_client_to_server=[b'aes128-ctr'],
+    encryption_algorithms_server_to_client=[b'aes128-ctr'],
+    mac_algorithms_client_to_server=[b'hmac-sha1'],
+    mac_algorithms_server_to_client=[b'hmac-sha1'],
+    compression_algorithms_client_to_server=[b'none'],
+    compression_algorithms_server_to_client=[b'none'],
+    languages_client_to_server=[b''],
+    languages_server_to_client=[b''],
+    first_kex_packet_follows=False,
+    reserved=0
+)
+           DEBUG    SSHPacket: Creating packet with length 164, padding length 14 (14), payload length 149 - 8                                                                                    ssh_packet.py:53
+           DEBUG    SSHPacket: Creating packet with length 164, padding length 14 (14), payload length 149 - 8                                                                                    ssh_packet.py:53
+           DEBUG    SSHSocketWrapper: c >> s [168]: 000000a40e14241a7f4d864521af4814 58fd3cf890930000001d646966666965 2d68656c6c6d616e2d67726f75703134 2d7368613235360000000c7273612d73   ssh_socket_wrapper.py:28
+                    6861322d3235360000000a6165733132 382d6374720000000a6165733132382d 63747200000009686d61632d73686131 00000009686d61632d73686131000000 046e6f6e65000000046e6f6e65000000
+                    000000000000000000005cd4950762c9 4dbc0e3abc6b53ba
+           DEBUG    SSHSocketWrapper: s >> c [4]: 00000434                                                                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1]: 07                                                                                                                                      ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1068]: 1481f8fffa01c6dd888b36511e471281 2f00000109736e747275703736317832 353531392d736861353132406f70656e 7373682e636f6d2c6375727665323535  ssh_socket_wrapper.py:35
+                    31392d7368613235362c637572766532 353531392d736861323536406c696273 73682e6f72672c656364682d73686132 2d6e697374703235362c656364682d73 6861322d6e697374703338342c656364
+                    682d736861322d6e697374703532312c 6469666669652d68656c6c6d616e2d67 726f75702d65786368616e67652d7368 613235362c6469666669652d68656c6c 6d616e2d67726f757031362d73686135
+                    31322c6469666669652d68656c6c6d61 6e2d67726f757031382d736861353132 2c6469666669652d68656c6c6d616e2d 67726f757031342d7368613235360000 00397273612d736861322d3531322c72
+                    73612d736861322d3235362c65636473 612d736861322d6e697374703235362c 7373682d656432353531390000006c63 686163686132302d706f6c7931333035 406f70656e7373682e636f6d2c616573
+                    3132382d6374722c6165733139322d63 74722c6165733235362d6374722c6165 733132382d67636d406f70656e737368 2e636f6d2c6165733235362d67636d40 6f70656e7373682e636f6d0000006c63
+                    686163686132302d706f6c7931333035 406f70656e7373682e636f6d2c616573 3132382d6374722c6165733139322d63 74722c6165733235362d6374722c6165 733132382d67636d406f70656e737368
+                    2e636f6d2c6165733235362d67636d40 6f70656e7373682e636f6d000000d575 6d61632d36342d65746d406f70656e73 73682e636f6d2c756d61632d3132382d 65746d406f70656e7373682e636f6d2c
+                    686d61632d736861322d3235362d6574 6d406f70656e7373682e636f6d2c686d 61632d736861322d3531322d65746d40 6f70656e7373682e636f6d2c686d6163 2d736861312d65746d406f70656e7373
+                    682e636f6d2c756d61632d3634406f70 656e7373682e636f6d2c756d61632d31 3238406f70656e7373682e636f6d2c68 6d61632d736861322d3235362c686d61 632d736861322d3531322c686d61632d
+                    73686131000000d5756d61632d36342d 65746d406f70656e7373682e636f6d2c 756d61632d3132382d65746d406f7065 6e7373682e636f6d2c686d61632d7368 61322d3235362d65746d406f70656e73
+                    73682e636f6d2c686d61632d73686132 2d3531322d65746d406f70656e737368 2e636f6d2c686d61632d736861312d65 746d406f70656e7373682e636f6d2c75 6d61632d3634406f70656e7373682e63
+                    6f6d2c756d61632d313238406f70656e 7373682e636f6d2c686d61632d736861 322d3235362c686d61632d736861322d 3531322c686d61632d73686131000000 156e6f6e652c7a6c6962406f70656e73
+                    73682e636f6d000000156e6f6e652c7a 6c6962406f70656e7373682e636f6d00 000000000000000000000000
+           DEBUG    SSHSocketWrapper: s >> c [7]: 00000000000000                                                                                                                          ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: Received packet[0]: 20 (SSH2_MSG_KEXINIT)                                                                                                           ssh_socket_wrapper.py:52
+Remote key:
+SSHKEXInitPacket(
+    cookie=b'\x81\xf8\xff\xfa\x01\xc6\xdd\x88\x8b6Q\x1eG\x12\x81/',
+    kex_algorithms=[
+        b'sntrup761x25519-sha512@openssh.com',
+        b'curve25519-sha256',
+        b'curve25519-sha256@libssh.org',
+        b'ecdh-sha2-nistp256',
+        b'ecdh-sha2-nistp384',
+        b'ecdh-sha2-nistp521',
+        b'diffie-hellman-group-exchange-sha256',
+        b'diffie-hellman-group16-sha512',
+        b'diffie-hellman-group18-sha512',
+        b'diffie-hellman-group14-sha256'
+    ],
+    server_host_key_algorithms=[b'rsa-sha2-512', b'rsa-sha2-256', b'ecdsa-sha2-nistp256', b'ssh-ed25519'],
+    encryption_algorithms_client_to_server=[b'chacha20-poly1305@openssh.com', b'aes128-ctr', b'aes192-ctr', b'aes256-ctr', b'aes128-gcm@openssh.com', b'aes256-gcm@openssh.com'],
+    encryption_algorithms_server_to_client=[b'chacha20-poly1305@openssh.com', b'aes128-ctr', b'aes192-ctr', b'aes256-ctr', b'aes128-gcm@openssh.com', b'aes256-gcm@openssh.com'],
+    mac_algorithms_client_to_server=[
+        b'umac-64-etm@openssh.com',
+        b'umac-128-etm@openssh.com',
+        b'hmac-sha2-256-etm@openssh.com',
+        b'hmac-sha2-512-etm@openssh.com',
+        b'hmac-sha1-etm@openssh.com',
+        b'umac-64@openssh.com',
+        b'umac-128@openssh.com',
+        b'hmac-sha2-256',
+        b'hmac-sha2-512',
+        b'hmac-sha1'
+    ],
+    mac_algorithms_server_to_client=[
+        b'umac-64-etm@openssh.com',
+        b'umac-128-etm@openssh.com',
+        b'hmac-sha2-256-etm@openssh.com',
+        b'hmac-sha2-512-etm@openssh.com',
+        b'hmac-sha1-etm@openssh.com',
+        b'umac-64@openssh.com',
+        b'umac-128@openssh.com',
+        b'hmac-sha2-256',
+        b'hmac-sha2-512',
+        b'hmac-sha1'
+    ],
+    compression_algorithms_client_to_server=[b'none', b'zlib@openssh.com'],
+    compression_algorithms_server_to_client=[b'none', b'zlib@openssh.com'],
+    languages_client_to_server=[b''],
+    languages_server_to_client=[b''],
+    first_kex_packet_follows=False,
+    reserved=0
+)
+           INFO     SSHClient: Generating keys...                                                                                                                                                      main.py:242
+           INFO     SSHClient: P:                                                                                                                                                                      main.py:252
+                    3231700607131100730033891392642382824881794124114023911284200975140074170663435422261968941736356934711790173790970419175460587320919502885375898618562215321217541251490177452027
+                    0235796078236248884246189477587641105928646099411723245426622522193230540919037680524235519125679715870117001058055877651038861847280257976054903569732561526167081339361799541336
+                    4765591603683178967290731783845896806396719009772021941686472258710314113364293195361934716365332097170774482279885885653692086452966360772502689555059283627511211740969729980684
+                    10554359584866583291642136218231078990999448652468262416972035911852507045361090559
+                    00000000: ff ff ff ff ff ff ff ff c9 0f da a2 21 68 c2 34  ............!h.4
+                    00000010: c4 c6 62 8b 80 dc 1c d1 29 02 4e 08 8a 67 cc 74  ..b.....).N..g.t
+                    00000020: 02 0b be a6 3b 13 9b 22 51 4a 08 79 8e 34 04 dd  ....;.."QJ.y.4..
+                    00000030: ef 95 19 b3 cd 3a 43 1b 30 2b 0a 6d f2 5f 14 37  .....:C.0+.m._.7
+                    00000040: 4f e1 35 6d 6d 51 c2 45 e4 85 b5 76 62 5e 7e c6  O.5mmQ.E...vb^~.
+                    00000050: f4 4c 42 e9 a6 37 ed 6b 0b ff 5c b6 f4 06 b7 ed  .LB..7.k..\.....
+                    00000060: ee 38 6b fb 5a 89 9f a5 ae 9f 24 11 7c 4b 1f e6  .8k.Z.....$.|K..
+                    00000070: 49 28 66 51 ec e4 5b 3d c2 00 7c b8 a1 63 bf 05  I(fQ..[=..|..c..
+                    00000080: 98 da 48 36 1c 55 d3 9a 69 16 3f a8 fd 24 cf 5f  ..H6.U..i.?..$._
+                    00000090: 83 65 5d 23 dc a3 ad 96 1c 62 f3 56 20 85 52 bb  .e]#.....b.V .R.
+                    000000a0: 9e d5 29 07 70 96 96 6d 67 0c 35 4e 4a bc 98 04  ..).p..mg.5NJ...
+                    000000b0: f1 74 6c 08 ca 18 21 7c 32 90 5e 46 2e 36 ce 3b  .tl...!|2.^F.6.;
+                    000000c0: e3 9e 77 2c 18 0e 86 03 9b 27 83 a2 ec 07 a2 8f  ..w,.....'......
+                    000000d0: b5 c5 5d f0 6f 4c 52 c9 de 2b cb f6 95 58 17 18  ..].oLR..+...X..
+                    000000e0: 39 95 49 7c ea 95 6a e5 15 d2 26 18 98 fa 05 10  9.I|..j...&.....
+                    000000f0: 15 72 8e 5a 8a ac aa 68 ff ff ff ff ff ff ff ff  .r.Z...h........
+
+           INFO     SSHClient: G: 2                                                                                                                                                                    main.py:253
+                    00000000: 02                                               .
+
+           INFO     SSHClient: X: 25167800030310373300104893032166956649264932701024034475852147363747570402513                                                                                        main.py:254
+                    00000000: 37 a4 78 52 b7 8c 33 d6 8f 9b 2b 8b 39 16 6c 1e  7.xR..3...+.9.l.
+                    00000010: b9 8e c5 66 0d 5e fa 12 d6 b2 b1 b7 c0 64 44 d1  ...f.^.......dD.
+
+           INFO     SSHClient: E:                                                                                                                                                                      main.py:255
+                    2878086243511573795961740467762721548135800385689353706991335612647291710022677613608949181947494963984828197098294154143611266621962642345811199308820420598060377240300848054951
+                    8096685646849256367275362081027606364254516357340325652647652334377861167217606549724921118259008986570370922120118722815143772722874843170760367828835628390245000555445191930647
+                    7865034196562949122418273928194471511337493357046207620649821273871658359503102174902232556217442019522561540980864058049267259585927243478947068975716377257379021101730532187751
+                    70462721811693308129176920748640527104952982254556409888686467904465049151715896572
+                    00000000: e3 fd 04 49 7f 18 66 9d 21 93 4a 86 d7 5d da e3  ...I..f.!.J..]..
+                    00000010: d5 36 bd 45 24 43 4c 05 a9 39 1e 64 2c 91 16 a1  .6.E$CL..9.d,...
+                    00000020: 06 23 5c ab af bb c2 a9 3d 7c 46 16 a4 54 ca d6  .#\.....=|F..T..
+                    00000030: 2c 93 eb bc f2 b5 7a cf 62 e2 d8 08 32 3c d8 de  ,.....z.b...2<..
+                    00000040: 80 c6 02 6a 46 f5 b0 8b c9 47 4c a7 41 55 90 19  ...jF....GL.AU..
+                    00000050: 2c 0e 81 38 24 5e 99 9e 76 20 41 3b cf 97 95 29  ,..8$^..v A;...)
+                    00000060: 45 40 2f ad ee 46 c9 fe 12 d9 ca 2c 82 c1 b5 62  E@/..F.....,...b
+                    00000070: 90 29 cb af 4e 4b ed 63 a5 93 fc ce 66 50 ee 33  .)..NK.c....fP.3
+                    00000080: d1 b0 d1 c8 d9 f0 4c fa 14 8e cb 48 47 65 50 00  ......L....HGeP.
+                    00000090: 1d b4 33 aa 59 d5 58 df 21 72 42 27 4a bb 4f 61  ..3.Y.X.!rB'J.Oa
+                    000000a0: 86 37 e4 39 1c ed 75 27 2a 77 4d 1b 13 b3 14 02  .7.9..u'*wM.....
+                    000000b0: 88 10 9b f9 2c 54 40 d5 63 39 d9 f5 71 c1 b3 0d  ....,T@.c9..q...
+                    000000c0: 8d a8 7e c2 29 35 b7 73 6c 65 fd 9d f5 67 d9 5d  ..~.)5.sle...g.]
+                    000000d0: 94 f0 49 4b 84 e6 8a ec 67 e4 d0 ca 1e ae 1d 02  ..IK....g.......
+                    000000e0: 08 3f 33 63 6a a1 dd 9e f2 f7 82 76 9b 8e 96 e4  .?3cj......v....
+                    000000f0: 46 06 1b c6 9b 74 93 66 04 f2 a7 fb f8 1f 6c fc  F....t.f......l.
+
+           DEBUG    SSHPacket: Creating packet with length 276, padding length 13 (13), payload length 262 - 8                                                                                    ssh_packet.py:53
+           DEBUG    SSHSocketWrapper: c >> s [280]: 000001140d1e0000010100e3fd04497f 18669d21934a86d75ddae3d536bd4524 434c05a9391e642c9116a106235cabaf bbc2a93d7c4616a454cad62c93ebbcf2   ssh_socket_wrapper.py:28
+                    b57acf62e2d808323cd8de80c6026a46 f5b08bc9474ca7415590192c0e813824 5e999e7620413bcf97952945402fadee 46c9fe12d9ca2c82c1b5629029cbaf4e 4bed63a593fcce6650ee33d1b0d1c8d9
+                    f04cfa148ecb48476550001db433aa59 d558df217242274abb4f618637e4391c ed75272a774d1b13b3140288109bf92c 5440d56339d9f571c1b30d8da87ec229 35b7736c65fd9df567d95d94f0494b84
+                    e68aec67e4d0ca1eae1d02083f33636a a1dd9ef2f782769b8e96e446061bc69b 74936604f2a7fbf81f6cfc08dec37641 86bcbc2af9048d9e
+           INFO     SSHClient: Sent SSH_MSG_KEXDH_INIT                                                                                                                                                 main.py:182
+           INFO     SSHClient: waiting for server response                                                                                                                                             main.py:233
+           DEBUG    SSHSocketWrapper: s >> c [4]: 00000444                                                                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1]: 0a                                                                                                                                      ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1081]: 1f00000197000000077373682d727361 0000000301000100000181009c650762 b31c7096e3786c5c967b30245452cf22 22d6f363dd0f56ed6cb8686579a0deaf  ssh_socket_wrapper.py:35
+                    82e0b4144eb05fcd38782d08d9b6da1b b152bdfa4c4e813f94d68cb6f446f85c 81929cdb32589e78e029473811217093 b191cb9e4b586b986834fa2d422a25f0 31d4a876a7a17a2eae7ffb9192cd314a
+                    ae78d9a6d4b8a2d8c0f6c74fec11b420 1f5c4e7fbad2463d568c1ddbafd1bb96 5c1772277434afa3d1e6546e5df1b646 83a8997e57acb2f8d5f5648c53bbc400 60813d27e9132633ad995bc5e48d106b
+                    d1211b7e978881c4cf639397aa48c016 66c601c96807d0bfa31881cdc418433c 0850339314716ab789acb293b6d2ed21 26d94593d62969be4413ff5bad8fb651 fa3e84ade30448f9db42150a243ea304
+                    e3b9adaa88599b1441c9bf813c614dc6 3889482af8598f0c27143795316bdb4d a7f93d3f4cac56e632e8d747b73c22c2 226ae9a15fd7b3c30ff7402534650951 8e979f8aed03e5fbbbd5f32ea7c76c9b
+                    b3c6963c8aa5d76289370c56831dcef3 6d3d67011f7b2c26616e728700000101 0080c3cf6bdde709a3866a1783bbeb39 a365d268b0594a8d7505570c014f1a5e 641a43eb09face97fc80af46dcd94e35
+                    b42e2b4ec3b9a516e0d1ca5f7a81d930 9e170f4d672931fb8dc9ce7e02b4f5e9 2a87f01d4f3e8bed99e1632d3380238c 4c9e831d25719dfb56e19edd35d087bf 60dd352b59a91c0cd6554d8d1047c50d
+                    b3077d49611e5e4535974e425e8b1b07 605102aad064ab266f432302d78289f9 e9db700718594d0dd421200abd2c446f 0db8f114ed6dcfab9dfedaf197b8773f 34edbe74e5544dc51a27b3fbe752c554
+                    6034bfa426713357f022949379fcb0b4 6f4ebd6ccbe2d7c6e6bf544c9ee1e1c8 bc84a1b24be250af82b3d197e81f8d12 fc000001940000000c7273612d736861 322d3235360000018063aa54a2dbe27a
+                    fa00b1c39d2cab41b4d05f3211be9f5d 9a6ea5e4dd875be17bef550560e502c8 1ebcc512a3694c69c72d2eed192b2f33 62c297c6cef0dcbde60ea1c804df5987 d5888fcdb3132d3aaeabcb42d5bbf190
+                    0f270ecdad9d0aa31722c1a58f563a71 430e1e7f973d87f16075fc40d5d37aec f9ef0b8773080db3db86603243732d1a ddde8c994208c0915334f9ea106a8c82 347c03306e61efe596e68215735ce6c1
+                    a864997d57903d504bc9fea175c64081 0040d12e24f7cf25faac8c2d4d81f4f0 3643bebdfec2da196d92906e8858dd4c 95632c5de4abfed4300813d52050698d eb91d86878035daced59dabc4bd053fa
+                    8cbfed0168e220b8d678c6dda1bf3d5b 905175c13e796565676d49b7127dce9e e6e88c5460f5e074082296ef2ea165eb 98a272acfe953cafed34135baae9b05b 51f0c18383fb017c663af7e9ba546a47
+                    da92d2e2d325c0f01e465f0b82879ce5 c6c2bcedc22e2960f90e749c060c6f21 eab812e1d2fa7574af8a946819bda512 47fd6f129fe2c114ba
+           DEBUG    SSHSocketWrapper: s >> c [10]: 00000000000000000000                                                                                                                   ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: Received packet[1]: 31 (SSH2_MSG_KEXDH_REPLY)                                                                                                       ssh_socket_wrapper.py:52
+           INFO     SSHClient: Server f value:                                                                                                                                                         main.py:238
+                    00000000: 80 c3 cf 6b dd e7 09 a3 86 6a 17 83 bb eb 39 a3  ...k.....j....9.
+                    00000010: 65 d2 68 b0 59 4a 8d 75 05 57 0c 01 4f 1a 5e 64  e.h.YJ.u.W..O.^d
+                    00000020: 1a 43 eb 09 fa ce 97 fc 80 af 46 dc d9 4e 35 b4  .C........F..N5.
+                    00000030: 2e 2b 4e c3 b9 a5 16 e0 d1 ca 5f 7a 81 d9 30 9e  .+N......._z..0.
+                    00000040: 17 0f 4d 67 29 31 fb 8d c9 ce 7e 02 b4 f5 e9 2a  ..Mg)1....~....*
+                    00000050: 87 f0 1d 4f 3e 8b ed 99 e1 63 2d 33 80 23 8c 4c  ...O>....c-3.#.L
+                    00000060: 9e 83 1d 25 71 9d fb 56 e1 9e dd 35 d0 87 bf 60  ...%q..V...5...`
+                    00000070: dd 35 2b 59 a9 1c 0c d6 55 4d 8d 10 47 c5 0d b3  .5+Y....UM..G...
+                    00000080: 07 7d 49 61 1e 5e 45 35 97 4e 42 5e 8b 1b 07 60  .}Ia.^E5.NB^...`
+                    00000090: 51 02 aa d0 64 ab 26 6f 43 23 02 d7 82 89 f9 e9  Q...d.&oC#......
+                    000000a0: db 70 07 18 59 4d 0d d4 21 20 0a bd 2c 44 6f 0d  .p..YM..! ..,Do.
+                    000000b0: b8 f1 14 ed 6d cf ab 9d fe da f1 97 b8 77 3f 34  ....m........w?4
+                    000000c0: ed be 74 e5 54 4d c5 1a 27 b3 fb e7 52 c5 54 60  ..t.TM..'...R.T`
+                    000000d0: 34 bf a4 26 71 33 57 f0 22 94 93 79 fc b0 b4 6f  4..&q3W."..y...o
+                    000000e0: 4e bd 6c cb e2 d7 c6 e6 bf 54 4c 9e e1 e1 c8 bc  N.l......TL.....
+                    000000f0: 84 a1 b2 4b e2 50 af 82 b3 d1 97 e8 1f 8d 12 fc  ...K.P..........
+
+           DEBUG    SSHSocketWrapper: s >> c [4]: 0000000c                                                                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1]: 0a                                                                                                                                      ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [1]: 15                                                                                                                                      ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [10]: 00000000000000000000                                                                                                                   ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: Received packet[2]: 21 (SSH2_MSG_NEWKEYS)                                                                                                           ssh_socket_wrapper.py:52
+           INFO     SSHClient: New keys: SSHNewKeysPacket()                                                                                                                                            main.py:197
+           DEBUG    SSHPacket: Creating packet with length 20, padding length 18 (18), payload length 1 - 8                                                                                       ssh_packet.py:53
+           DEBUG    SSHSocketWrapper: c >> s [24]: 000000141215f6ea12bd2de04f762868 04a2f014dd192638                                                                                      ssh_socket_wrapper.py:28
+           INFO     SSHClient: Habemus New Keys!                                                                                                                                                       main.py:200
+           INFO     SSHClient: Derived key:                                                                                                                                                            main.py:230
+                    1048001053312538762979076268573211043268841418717053192897712724197860274709508478181893107373778918309919240627294697400526184529705697416688376003515387975117877715762095155168
+                    1334492461659887369577490262940488617325948663001157941527019759587529341370612811256603872214070103509725383067506791489033737996150265531530554612880053124747321005020581477475
+                    0506421921123518668487596364059912496027687423922764682001262704799298782505836395433632332234178020305023491500200848872655249570406287023106762288454067323344036946540036450102
+                    17961378641825890798686771237242668814926112804501455579596299888131568942124739490
+                    00000000: 53 04 86 53 d4 b3 53 cf 7c ed 52 7e 62 63 f2 f2  S..S..S.|.R~bc..
+                    00000010: af 2f 13 b9 74 92 ac 1c b7 ca af 2b 92 90 85 8a  ./..t......+....
+                    00000020: e0 62 83 e4 8f 3c 27 0c fa 2c 6c b0 73 81 f3 cc  .b...<'..,l.s...
+                    00000030: 4a 3d c2 97 bb 41 5e 12 ae 0b 42 56 36 f7 40 63  J=...A^...BV6.@c
+                    00000040: c9 f5 9e 0d 28 35 84 97 08 93 79 08 a7 48 4f ac  ....(5....y..HO.
+                    00000050: 31 46 6e 95 f0 0a 22 6e cf 47 2d 57 2d 5c a7 46  1Fn..."n.G-W-\.F
+                    00000060: bf 07 dd 00 50 56 11 99 da 55 1c 80 b2 7d 8f 41  ....PV...U...}.A
+                    00000070: 8c 5e 93 87 3f 2e f4 75 c1 8c aa bb a4 43 38 76  .^..?..u.....C8v
+                    00000080: fd 67 5a c2 f8 10 3c 0c 80 1f 52 9f 2f a7 9e 3c  .gZ...<...R./..<
+                    00000090: e1 8c e5 8a 0b 3a 0f a1 f7 9a 0d 05 1c a4 d8 d8  .....:..........
+                    000000a0: 6f 93 a5 b7 26 c9 5d 2d 34 4d 48 6b 96 89 7e ba  o...&.]-4MHk..~.
+                    000000b0: dd 24 10 80 56 3f 86 55 73 ed 24 b5 f6 7a d0 da  .$..V?.Us.$..z..
+                    000000c0: 98 f2 98 81 f6 07 8c 0c 57 be ff c6 fd 64 95 e3  ........W....d..
+                    000000d0: df 47 31 78 ea 1d 2b 36 f3 55 0a 1c 07 48 51 44  .G1x..+6.U...HQD
+                    000000e0: c8 b5 61 b3 90 a5 00 26 c1 ca 76 ee 1b bf 09 fc  ..a....&..v.....
+                    000000f0: 74 71 f4 81 19 e4 e5 62 48 5d 29 ae 6e 91 ab a2  tq.....bH]).n...
+
+           INFO     SSHClient: Buffer: b'\x00\x00\x00+SSH-2.0-LeoFedeSsh0.1 Un trabajo para un                                                                                                         main.py:230
+                    tp\x00\x00\x00\x13SSH-2.0-OpenSSH_9.0\x00\x00\x00\x95\x14$\x1a\x7fM\x86E!\xafH\x14X\xfd<\xf8\x90\x93\x00\x00\x00\x1ddiffie-hellman-group14-sha256\x00\x00\x00\x0crsa-sha2-256\x00\
+                    x00\x00\naes128-ctr\x00\x00\x00\naes128-ctr\x00\x00\x00\thmac-sha1\x00\x00\x00\thmac-sha1\x00\x00\x00\x04none\x00\x00\x00\x04none\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
+                    x00\x00\x00\x04,\x14\x81\xf8\xff\xfa\x01\xc6\xdd\x88\x8b6Q\x1eG\x12\x81/\x00\x00\x01\tsntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-
+                    nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256\x00\
+                    x00\x009rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519\x00\x00\x00lchacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@ope
+                    nssh.com\x00\x00\x00lchacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com\x00\x00\x00\xd5umac-64-etm@openssh.com,umac-128-
+                    etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sh
+                    a1\x00\x00\x00\xd5umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-
+                    128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1\x00\x00\x00\x15none,zlib@openssh.com\x00\x00\x00\x15none,zlib@openssh.com\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0
+                    0\x00\x00\x01\x97\x00\x00\x00\x07ssh-rsa\x00\x00\x00\x03\x01\x00\x01\x00\x00\x01\x81\x00\x9ce\x07b\xb3\x1cp\x96\xe3xl\\\x96{0$TR\xcf""\xd6\xf3c\xdd\x0fV\xedl\xb8hey\xa0\xde\xaf\x
+                    82\xe0\xb4\x14N\xb0_\xcd8x-\x08\xd9\xb6\xda\x1b\xb1R\xbd\xfaLN\x81?\x94\xd6\x8c\xb6\xf4F\xf8\\\x81\x92\x9c\xdb2X\x9ex\xe0)G8\x11!p\x93\xb1\x91\xcb\x9eKXk\x98h4\xfa-B*%\xf01\xd4\x
+                    a8v\xa7\xa1z.\xae\x7f\xfb\x91\x92\xcd1J\xaex\xd9\xa6\xd4\xb8\xa2\xd8\xc0\xf6\xc7O\xec\x11\xb4
+                    \x1f\\N\x7f\xba\xd2F=V\x8c\x1d\xdb\xaf\xd1\xbb\x96\\\x17r\'t4\xaf\xa3\xd1\xe6Tn]\xf1\xb6F\x83\xa8\x99~W\xac\xb2\xf8\xd5\xf5d\x8cS\xbb\xc4\x00`\x81=\'\xe9\x13&3\xad\x99[\xc5\xe4\x
+                    8d\x10k\xd1!\x1b~\x97\x88\x81\xc4\xcfc\x93\x97\xaaH\xc0\x16f\xc6\x01\xc9h\x07\xd0\xbf\xa3\x18\x81\xcd\xc4\x18C<\x08P3\x93\x14qj\xb7\x89\xac\xb2\x93\xb6\xd2\xed!&\xd9E\x93\xd6)i\x
+                    beD\x13\xff[\xad\x8f\xb6Q\xfa>\x84\xad\xe3\x04H\xf9\xdbB\x15\n$>\xa3\x04\xe3\xb9\xad\xaa\x88Y\x9b\x14A\xc9\xbf\x81<aM\xc68\x89H*\xf8Y\x8f\x0c\'\x147\x951k\xdbM\xa7\xf9=?L\xacV\xe
+                    62\xe8\xd7G\xb7<"\xc2"j\xe9\xa1_\xd7\xb3\xc3\x0f\xf7@%4e\tQ\x8e\x97\x9f\x8a\xed\x03\xe5\xfb\xbb\xd5\xf3.\xa7\xc7l\x9b\xb3\xc6\x96<\x8a\xa5\xd7b\x897\x0cV\x83\x1d\xce\xf3m=g\x01\x
+                    1f{,&anr\x87\x00\x00\x01\x01\x00\xe3\xfd\x04I\x7f\x18f\x9d!\x93J\x86\xd7]\xda\xe3\xd56\xbdE$CL\x05\xa99\x1ed,\x91\x16\xa1\x06#\\\xab\xaf\xbb\xc2\xa9=|F\x16\xa4T\xca\xd6,\x93\xeb\
+                    xbc\xf2\xb5z\xcfb\xe2\xd8\x082<\xd8\xde\x80\xc6\x02jF\xf5\xb0\x8b\xc9GL\xa7AU\x90\x19,\x0e\x818$^\x99\x9ev
+                    A;\xcf\x97\x95)E@/\xad\xeeF\xc9\xfe\x12\xd9\xca,\x82\xc1\xb5b\x90)\xcb\xafNK\xedc\xa5\x93\xfc\xcefP\xee3\xd1\xb0\xd1\xc8\xd9\xf0L\xfa\x14\x8e\xcbHGeP\x00\x1d\xb43\xaaY\xd5X\xdf!r
+                    B\'J\xbbOa\x867\xe49\x1c\xedu\'*wM\x1b\x13\xb3\x14\x02\x88\x10\x9b\xf9,T@\xd5c9\xd9\xf5q\xc1\xb3\r\x8d\xa8~\xc2)5\xb7sle\xfd\x9d\xf5g\xd9]\x94\xf0IK\x84\xe6\x8a\xecg\xe4\xd0\xca\
+                    x1e\xae\x1d\x02\x08?3cj\xa1\xdd\x9e\xf2\xf7\x82v\x9b\x8e\x96\xe4F\x06\x1b\xc6\x9bt\x93f\x04\xf2\xa7\xfb\xf8\x1fl\xfc\x00\x00\x01\x01\x00\x80\xc3\xcfk\xdd\xe7\t\xa3\x86j\x17\x83\x
+                    bb\xeb9\xa3e\xd2h\xb0YJ\x8du\x05W\x0c\x01O\x1a^d\x1aC\xeb\t\xfa\xce\x97\xfc\x80\xafF\xdc\xd9N5\xb4.+N\xc3\xb9\xa5\x16\xe0\xd1\xca_z\x81\xd90\x9e\x17\x0fMg)1\xfb\x8d\xc9\xce~\x02\
+                    xb4\xf5\xe9*\x87\xf0\x1dO>\x8b\xed\x99\xe1c-3\x80#\x8cL\x9e\x83\x1d%q\x9d\xfbV\xe1\x9e\xdd5\xd0\x87\xbf`\xdd5+Y\xa9\x1c\x0c\xd6UM\x8d\x10G\xc5\r\xb3\x07}Ia\x1e^E5\x97NB^\x8b\x1b\
+                    x07`Q\x02\xaa\xd0d\xab&oC#\x02\xd7\x82\x89\xf9\xe9\xdbp\x07\x18YM\r\xd4!
+                    \n\xbd,Do\r\xb8\xf1\x14\xedm\xcf\xab\x9d\xfe\xda\xf1\x97\xb8w?4\xed\xbet\xe5TM\xc5\x1a\'\xb3\xfb\xe7R\xc5T`4\xbf\xa4&q3W\xf0"\x94\x93y\xfc\xb0\xb4oN\xbdl\xcb\xe2\xd7\xc6\xe6\xbfT
+                    L\x9e\xe1\xe1\xc8\xbc\x84\xa1\xb2K\xe2P\xaf\x82\xb3\xd1\x97\xe8\x1f\x8d\x12\xfc\x00\x00\x01\x00S\x04\x86S\xd4\xb3S\xcf|\xedR~bc\xf2\xf2\xaf/\x13\xb9t\x92\xac\x1c\xb7\xca\xaf+\x92
+                    \x90\x85\x8a\xe0b\x83\xe4\x8f<\'\x0c\xfa,l\xb0s\x81\xf3\xccJ=\xc2\x97\xbbA^\x12\xae\x0bBV6\xf7@c\xc9\xf5\x9e\r(5\x84\x97\x08\x93y\x08\xa7HO\xac1Fn\x95\xf0\n"n\xcfG-W-\\\xa7F\xbf\
+                    x07\xdd\x00PV\x11\x99\xdaU\x1c\x80\xb2}\x8fA\x8c^\x93\x87?.\xf4u\xc1\x8c\xaa\xbb\xa4C8v\xfdgZ\xc2\xf8\x10<\x0c\x80\x1fR\x9f/\xa7\x9e<\xe1\x8c\xe5\x8a\x0b:\x0f\xa1\xf7\x9a\r\x05\x
+                    1c\xa4\xd8\xd8o\x93\xa5\xb7&\xc9]-4MHk\x96\x89~\xba\xdd$\x10\x80V?\x86Us\xed$\xb5\xf6z\xd0\xda\x98\xf2\x98\x81\xf6\x07\x8c\x0cW\xbe\xff\xc6\xfdd\x95\xe3\xdfG1x\xea\x1d+6\xf3U\n\x
+                    1c\x07HQD\xc8\xb5a\xb3\x90\xa5\x00&\xc1\xcav\xee\x1b\xbf\t\xfctq\xf4\x81\x19\xe4\xe5bH])\xaen\x91\xab\xa2'
+                    00000000: 00 00 00 2b 53 53 48 2d 32 2e 30 2d 4c 65 6f 46  ...+SSH-2.0-LeoF
+                    00000010: 65 64 65 53 73 68 30 2e 31 20 55 6e 20 74 72 61  edeSsh0.1 Un tra
+                    00000020: 62 61 6a 6f 20 70 61 72 61 20 75 6e 20 74 70 00  bajo para un tp.
+                    00000030: 00 00 13 53 53 48 2d 32 2e 30 2d 4f 70 65 6e 53  ...SSH-2.0-OpenS
+                    00000040: 53 48 5f 39 2e 30 00 00 00 95 14 24 1a 7f 4d 86  SH_9.0.....$..M.
+                    00000050: 45 21 af 48 14 58 fd 3c f8 90 93 00 00 00 1d 64  E!.H.X.<.......d
+                    00000060: 69 66 66 69 65 2d 68 65 6c 6c 6d 61 6e 2d 67 72  iffie-hellman-gr
+                    00000070: 6f 75 70 31 34 2d 73 68 61 32 35 36 00 00 00 0c  oup14-sha256....
+                    00000080: 72 73 61 2d 73 68 61 32 2d 32 35 36 00 00 00 0a  rsa-sha2-256....
+                    00000090: 61 65 73 31 32 38 2d 63 74 72 00 00 00 0a 61 65  aes128-ctr....ae
+                    000000a0: 73 31 32 38 2d 63 74 72 00 00 00 09 68 6d 61 63  s128-ctr....hmac
+                    000000b0: 2d 73 68 61 31 00 00 00 09 68 6d 61 63 2d 73 68  -sha1....hmac-sh
+                    000000c0: 61 31 00 00 00 04 6e 6f 6e 65 00 00 00 04 6e 6f  a1....none....no
+                    000000d0: 6e 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ne..............
+                    000000e0: 00 04 2c 14 81 f8 ff fa 01 c6 dd 88 8b 36 51 1e  ..,..........6Q.
+                    000000f0: 47 12 81 2f 00 00 01 09 73 6e 74 72 75 70 37 36  G../....sntrup76
+                    00000100: 31 78 32 35 35 31 39 2d 73 68 61 35 31 32 40 6f  1x25519-sha512@o
+                    00000110: 70 65 6e 73 73 68 2e 63 6f 6d 2c 63 75 72 76 65  penssh.com,curve
+                    00000120: 32 35 35 31 39 2d 73 68 61 32 35 36 2c 63 75 72  25519-sha256,cur
+                    00000130: 76 65 32 35 35 31 39 2d 73 68 61 32 35 36 40 6c  ve25519-sha256@l
+                    00000140: 69 62 73 73 68 2e 6f 72 67 2c 65 63 64 68 2d 73  ibssh.org,ecdh-s
+                    00000150: 68 61 32 2d 6e 69 73 74 70 32 35 36 2c 65 63 64  ha2-nistp256,ecd
+                    00000160: 68 2d 73 68 61 32 2d 6e 69 73 74 70 33 38 34 2c  h-sha2-nistp384,
+                    00000170: 65 63 64 68 2d 73 68 61 32 2d 6e 69 73 74 70 35  ecdh-sha2-nistp5
+                    00000180: 32 31 2c 64 69 66 66 69 65 2d 68 65 6c 6c 6d 61  21,diffie-hellma
+                    00000190: 6e 2d 67 72 6f 75 70 2d 65 78 63 68 61 6e 67 65  n-group-exchange
+                    000001a0: 2d 73 68 61 32 35 36 2c 64 69 66 66 69 65 2d 68  -sha256,diffie-h
+                    000001b0: 65 6c 6c 6d 61 6e 2d 67 72 6f 75 70 31 36 2d 73  ellman-group16-s
+                    000001c0: 68 61 35 31 32 2c 64 69 66 66 69 65 2d 68 65 6c  ha512,diffie-hel
+                    000001d0: 6c 6d 61 6e 2d 67 72 6f 75 70 31 38 2d 73 68 61  lman-group18-sha
+                    000001e0: 35 31 32 2c 64 69 66 66 69 65 2d 68 65 6c 6c 6d  512,diffie-hellm
+                    000001f0: 61 6e 2d 67 72 6f 75 70 31 34 2d 73 68 61 32 35  an-group14-sha25
+                    00000200: 36 00 00 00 39 72 73 61 2d 73 68 61 32 2d 35 31  6...9rsa-sha2-51
+                    00000210: 32 2c 72 73 61 2d 73 68 61 32 2d 32 35 36 2c 65  2,rsa-sha2-256,e
+                    00000220: 63 64 73 61 2d 73 68 61 32 2d 6e 69 73 74 70 32  cdsa-sha2-nistp2
+                    00000230: 35 36 2c 73 73 68 2d 65 64 32 35 35 31 39 00 00  56,ssh-ed25519..
+                    00000240: 00 6c 63 68 61 63 68 61 32 30 2d 70 6f 6c 79 31  .lchacha20-poly1
+                    00000250: 33 30 35 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 2c  305@openssh.com,
+                    00000260: 61 65 73 31 32 38 2d 63 74 72 2c 61 65 73 31 39  aes128-ctr,aes19
+                    00000270: 32 2d 63 74 72 2c 61 65 73 32 35 36 2d 63 74 72  2-ctr,aes256-ctr
+                    00000280: 2c 61 65 73 31 32 38 2d 67 63 6d 40 6f 70 65 6e  ,aes128-gcm@open
+                    00000290: 73 73 68 2e 63 6f 6d 2c 61 65 73 32 35 36 2d 67  ssh.com,aes256-g
+                    000002a0: 63 6d 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 00 00  cm@openssh.com..
+                    000002b0: 00 6c 63 68 61 63 68 61 32 30 2d 70 6f 6c 79 31  .lchacha20-poly1
+                    000002c0: 33 30 35 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 2c  305@openssh.com,
+                    000002d0: 61 65 73 31 32 38 2d 63 74 72 2c 61 65 73 31 39  aes128-ctr,aes19
+                    000002e0: 32 2d 63 74 72 2c 61 65 73 32 35 36 2d 63 74 72  2-ctr,aes256-ctr
+                    000002f0: 2c 61 65 73 31 32 38 2d 67 63 6d 40 6f 70 65 6e  ,aes128-gcm@open
+                    00000300: 73 73 68 2e 63 6f 6d 2c 61 65 73 32 35 36 2d 67  ssh.com,aes256-g
+                    00000310: 63 6d 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 00 00  cm@openssh.com..
+                    00000320: 00 d5 75 6d 61 63 2d 36 34 2d 65 74 6d 40 6f 70  ..umac-64-etm@op
+                    00000330: 65 6e 73 73 68 2e 63 6f 6d 2c 75 6d 61 63 2d 31  enssh.com,umac-1
+                    00000340: 32 38 2d 65 74 6d 40 6f 70 65 6e 73 73 68 2e 63  28-etm@openssh.c
+                    00000350: 6f 6d 2c 68 6d 61 63 2d 73 68 61 32 2d 32 35 36  om,hmac-sha2-256
+                    00000360: 2d 65 74 6d 40 6f 70 65 6e 73 73 68 2e 63 6f 6d  -etm@openssh.com
+                    00000370: 2c 68 6d 61 63 2d 73 68 61 32 2d 35 31 32 2d 65  ,hmac-sha2-512-e
+                    00000380: 74 6d 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 2c 68  tm@openssh.com,h
+                    00000390: 6d 61 63 2d 73 68 61 31 2d 65 74 6d 40 6f 70 65  mac-sha1-etm@ope
+                    000003a0: 6e 73 73 68 2e 63 6f 6d 2c 75 6d 61 63 2d 36 34  nssh.com,umac-64
+                    000003b0: 40 6f 70 65 6e 73 73 68 2e 63 6f 6d 2c 75 6d 61  @openssh.com,uma
+                    000003c0: 63 2d 31 32 38 40 6f 70 65 6e 73 73 68 2e 63 6f  c-128@openssh.co
+                    000003d0: 6d 2c 68 6d 61 63 2d 73 68 61 32 2d 32 35 36 2c  m,hmac-sha2-256,
+                    000003e0: 68 6d 61 63 2d 73 68 61 32 2d 35 31 32 2c 68 6d  hmac-sha2-512,hm
+                    000003f0: 61 63 2d 73 68 61 31 00 00 00 d5 75 6d 61 63 2d  ac-sha1....umac-
+                    00000400: 36 34 2d 65 74 6d 40 6f 70 65 6e 73 73 68 2e 63  64-etm@openssh.c
+                    00000410: 6f 6d 2c 75 6d 61 63 2d 31 32 38 2d 65 74 6d 40  om,umac-128-etm@
+                    00000420: 6f 70 65 6e 73 73 68 2e 63 6f 6d 2c 68 6d 61 63  openssh.com,hmac
+                    00000430: 2d 73 68 61 32 2d 32 35 36 2d 65 74 6d 40 6f 70  -sha2-256-etm@op
+                    00000440: 65 6e 73 73 68 2e 63 6f 6d 2c 68 6d 61 63 2d 73  enssh.com,hmac-s
+                    00000450: 68 61 32 2d 35 31 32 2d 65 74 6d 40 6f 70 65 6e  ha2-512-etm@open
+                    00000460: 73 73 68 2e 63 6f 6d 2c 68 6d 61 63 2d 73 68 61  ssh.com,hmac-sha
+                    00000470: 31 2d 65 74 6d 40 6f 70 65 6e 73 73 68 2e 63 6f  1-etm@openssh.co
+                    00000480: 6d 2c 75 6d 61 63 2d 36 34 40 6f 70 65 6e 73 73  m,umac-64@openss
+                    00000490: 68 2e 63 6f 6d 2c 75 6d 61 63 2d 31 32 38 40 6f  h.com,umac-128@o
+                    000004a0: 70 65 6e 73 73 68 2e 63 6f 6d 2c 68 6d 61 63 2d  penssh.com,hmac-
+                    000004b0: 73 68 61 32 2d 32 35 36 2c 68 6d 61 63 2d 73 68  sha2-256,hmac-sh
+                    000004c0: 61 32 2d 35 31 32 2c 68 6d 61 63 2d 73 68 61 31  a2-512,hmac-sha1
+                    000004d0: 00 00 00 15 6e 6f 6e 65 2c 7a 6c 69 62 40 6f 70  ....none,zlib@op
+                    000004e0: 65 6e 73 73 68 2e 63 6f 6d 00 00 00 15 6e 6f 6e  enssh.com....non
+                    000004f0: 65 2c 7a 6c 69 62 40 6f 70 65 6e 73 73 68 2e 63  e,zlib@openssh.c
+                    00000500: 6f 6d 00 00 00 00 00 00 00 00 00 00 00 00 00 00  om..............
+                    00000510: 00 01 97 00 00 00 07 73 73 68 2d 72 73 61 00 00  .......ssh-rsa..
+                    00000520: 00 03 01 00 01 00 00 01 81 00 9c 65 07 62 b3 1c  ...........e.b..
+                    00000530: 70 96 e3 78 6c 5c 96 7b 30 24 54 52 cf 22 22 d6  p..xl\.{0$TR."".
+                    00000540: f3 63 dd 0f 56 ed 6c b8 68 65 79 a0 de af 82 e0  .c..V.l.hey.....
+                    00000550: b4 14 4e b0 5f cd 38 78 2d 08 d9 b6 da 1b b1 52  ..N._.8x-......R
+                    00000560: bd fa 4c 4e 81 3f 94 d6 8c b6 f4 46 f8 5c 81 92  ..LN.?.....F.\..
+                    00000570: 9c db 32 58 9e 78 e0 29 47 38 11 21 70 93 b1 91  ..2X.x.)G8.!p...
+                    00000580: cb 9e 4b 58 6b 98 68 34 fa 2d 42 2a 25 f0 31 d4  ..KXk.h4.-B*%.1.
+                    00000590: a8 76 a7 a1 7a 2e ae 7f fb 91 92 cd 31 4a ae 78  .v..z.......1J.x
+                    000005a0: d9 a6 d4 b8 a2 d8 c0 f6 c7 4f ec 11 b4 20 1f 5c  .........O... .\
+                    000005b0: 4e 7f ba d2 46 3d 56 8c 1d db af d1 bb 96 5c 17  N...F=V.......\.
+                    000005c0: 72 27 74 34 af a3 d1 e6 54 6e 5d f1 b6 46 83 a8  r't4....Tn]..F..
+                    000005d0: 99 7e 57 ac b2 f8 d5 f5 64 8c 53 bb c4 00 60 81  .~W.....d.S...`.
+                    000005e0: 3d 27 e9 13 26 33 ad 99 5b c5 e4 8d 10 6b d1 21  ='..&3..[....k.!
+                    000005f0: 1b 7e 97 88 81 c4 cf 63 93 97 aa 48 c0 16 66 c6  .~.....c...H..f.
+                    00000600: 01 c9 68 07 d0 bf a3 18 81 cd c4 18 43 3c 08 50  ..h.........C<.P
+                    00000610: 33 93 14 71 6a b7 89 ac b2 93 b6 d2 ed 21 26 d9  3..qj........!&.
+                    00000620: 45 93 d6 29 69 be 44 13 ff 5b ad 8f b6 51 fa 3e  E..)i.D..[...Q.>
+                    00000630: 84 ad e3 04 48 f9 db 42 15 0a 24 3e a3 04 e3 b9  ....H..B..$>....
+                    00000640: ad aa 88 59 9b 14 41 c9 bf 81 3c 61 4d c6 38 89  ...Y..A...<aM.8.
+                    00000650: 48 2a f8 59 8f 0c 27 14 37 95 31 6b db 4d a7 f9  H*.Y..'.7.1k.M..
+                    00000660: 3d 3f 4c ac 56 e6 32 e8 d7 47 b7 3c 22 c2 22 6a  =?L.V.2..G.<"."j
+                    00000670: e9 a1 5f d7 b3 c3 0f f7 40 25 34 65 09 51 8e 97  .._.....@%4e.Q..
+                    00000680: 9f 8a ed 03 e5 fb bb d5 f3 2e a7 c7 6c 9b b3 c6  ............l...
+                    00000690: 96 3c 8a a5 d7 62 89 37 0c 56 83 1d ce f3 6d 3d  .<...b.7.V....m=
+                    000006a0: 67 01 1f 7b 2c 26 61 6e 72 87 00 00 01 01 00 e3  g..{,&anr.......
+                    000006b0: fd 04 49 7f 18 66 9d 21 93 4a 86 d7 5d da e3 d5  ..I..f.!.J..]...
+                    000006c0: 36 bd 45 24 43 4c 05 a9 39 1e 64 2c 91 16 a1 06  6.E$CL..9.d,....
+                    000006d0: 23 5c ab af bb c2 a9 3d 7c 46 16 a4 54 ca d6 2c  #\.....=|F..T..,
+                    000006e0: 93 eb bc f2 b5 7a cf 62 e2 d8 08 32 3c d8 de 80  .....z.b...2<...
+                    000006f0: c6 02 6a 46 f5 b0 8b c9 47 4c a7 41 55 90 19 2c  ..jF....GL.AU..,
+                    00000700: 0e 81 38 24 5e 99 9e 76 20 41 3b cf 97 95 29 45  ..8$^..v A;...)E
+                    00000710: 40 2f ad ee 46 c9 fe 12 d9 ca 2c 82 c1 b5 62 90  @/..F.....,...b.
+                    00000720: 29 cb af 4e 4b ed 63 a5 93 fc ce 66 50 ee 33 d1  )..NK.c....fP.3.
+                    00000730: b0 d1 c8 d9 f0 4c fa 14 8e cb 48 47 65 50 00 1d  .....L....HGeP..
+                    00000740: b4 33 aa 59 d5 58 df 21 72 42 27 4a bb 4f 61 86  .3.Y.X.!rB'J.Oa.
+                    00000750: 37 e4 39 1c ed 75 27 2a 77 4d 1b 13 b3 14 02 88  7.9..u'*wM......
+                    00000760: 10 9b f9 2c 54 40 d5 63 39 d9 f5 71 c1 b3 0d 8d  ...,T@.c9..q....
+                    00000770: a8 7e c2 29 35 b7 73 6c 65 fd 9d f5 67 d9 5d 94  .~.)5.sle...g.].
+                    00000780: f0 49 4b 84 e6 8a ec 67 e4 d0 ca 1e ae 1d 02 08  .IK....g........
+                    00000790: 3f 33 63 6a a1 dd 9e f2 f7 82 76 9b 8e 96 e4 46  ?3cj......v....F
+                    000007a0: 06 1b c6 9b 74 93 66 04 f2 a7 fb f8 1f 6c fc 00  ....t.f......l..
+                    000007b0: 00 01 01 00 80 c3 cf 6b dd e7 09 a3 86 6a 17 83  .......k.....j..
+                    000007c0: bb eb 39 a3 65 d2 68 b0 59 4a 8d 75 05 57 0c 01  ..9.e.h.YJ.u.W..
+                    000007d0: 4f 1a 5e 64 1a 43 eb 09 fa ce 97 fc 80 af 46 dc  O.^d.C........F.
+                    000007e0: d9 4e 35 b4 2e 2b 4e c3 b9 a5 16 e0 d1 ca 5f 7a  .N5..+N......._z
+                    000007f0: 81 d9 30 9e 17 0f 4d 67 29 31 fb 8d c9 ce 7e 02  ..0...Mg)1....~.
+                    00000800: b4 f5 e9 2a 87 f0 1d 4f 3e 8b ed 99 e1 63 2d 33  ...*...O>....c-3
+                    00000810: 80 23 8c 4c 9e 83 1d 25 71 9d fb 56 e1 9e dd 35  .#.L...%q..V...5
+                    00000820: d0 87 bf 60 dd 35 2b 59 a9 1c 0c d6 55 4d 8d 10  ...`.5+Y....UM..
+                    00000830: 47 c5 0d b3 07 7d 49 61 1e 5e 45 35 97 4e 42 5e  G....}Ia.^E5.NB^
+                    00000840: 8b 1b 07 60 51 02 aa d0 64 ab 26 6f 43 23 02 d7  ...`Q...d.&oC#..
+                    00000850: 82 89 f9 e9 db 70 07 18 59 4d 0d d4 21 20 0a bd  .....p..YM..! ..
+                    00000860: 2c 44 6f 0d b8 f1 14 ed 6d cf ab 9d fe da f1 97  ,Do.....m.......
+                    00000870: b8 77 3f 34 ed be 74 e5 54 4d c5 1a 27 b3 fb e7  .w?4..t.TM..'...
+                    00000880: 52 c5 54 60 34 bf a4 26 71 33 57 f0 22 94 93 79  R.T`4..&q3W."..y
+                    00000890: fc b0 b4 6f 4e bd 6c cb e2 d7 c6 e6 bf 54 4c 9e  ...oN.l......TL.
+                    000008a0: e1 e1 c8 bc 84 a1 b2 4b e2 50 af 82 b3 d1 97 e8  .......K.P......
+                    000008b0: 1f 8d 12 fc 00 00 01 00 53 04 86 53 d4 b3 53 cf  ........S..S..S.
+                    000008c0: 7c ed 52 7e 62 63 f2 f2 af 2f 13 b9 74 92 ac 1c  |.R~bc.../..t...
+                    000008d0: b7 ca af 2b 92 90 85 8a e0 62 83 e4 8f 3c 27 0c  ...+.....b...<'.
+                    000008e0: fa 2c 6c b0 73 81 f3 cc 4a 3d c2 97 bb 41 5e 12  .,l.s...J=...A^.
+                    000008f0: ae 0b 42 56 36 f7 40 63 c9 f5 9e 0d 28 35 84 97  ..BV6.@c....(5..
+                    00000900: 08 93 79 08 a7 48 4f ac 31 46 6e 95 f0 0a 22 6e  ..y..HO.1Fn..."n
+                    00000910: cf 47 2d 57 2d 5c a7 46 bf 07 dd 00 50 56 11 99  .G-W-\.F....PV..
+                    00000920: da 55 1c 80 b2 7d 8f 41 8c 5e 93 87 3f 2e f4 75  .U...}.A.^..?..u
+                    00000930: c1 8c aa bb a4 43 38 76 fd 67 5a c2 f8 10 3c 0c  .....C8v.gZ...<.
+                    00000940: 80 1f 52 9f 2f a7 9e 3c e1 8c e5 8a 0b 3a 0f a1  ..R./..<.....:..
+                    00000950: f7 9a 0d 05 1c a4 d8 d8 6f 93 a5 b7 26 c9 5d 2d  ........o...&.]-
+                    00000960: 34 4d 48 6b 96 89 7e ba dd 24 10 80 56 3f 86 55  4MHk..~..$..V?.U
+                    00000970: 73 ed 24 b5 f6 7a d0 da 98 f2 98 81 f6 07 8c 0c  s.$..z..........
+                    00000980: 57 be ff c6 fd 64 95 e3 df 47 31 78 ea 1d 2b 36  W....d...G1x..+6
+                    00000990: f3 55 0a 1c 07 48 51 44 c8 b5 61 b3 90 a5 00 26  .U...HQD..a....&
+                    000009a0: c1 ca 76 ee 1b bf 09 fc 74 71 f4 81 19 e4 e5 62  ..v.....tq.....b
+                    000009b0: 48 5d 29 ae 6e 91 ab a2                          H]).n...
+
+           INFO     SSHClient: hash: b'\x15\xf8L\x95?(\xe1/\x87V\xbfr\xbc6"h\xb7\xf0/\xd0\xde\xd0\xdad\x02\x08\xc0\xf4\xeeF\xb6\x1e'                                                                   main.py:230
+                    00000000: 15 f8 4c 95 3f 28 e1 2f 87 56 bf 72 bc 36 22 68  ..L.?(./.V.r.6"h
+                    00000010: b7 f0 2f d0 de d0 da 64 02 08 c0 f4 ee 46 b6 1e  ../....d.....F..
+
+           INFO     SSHClient: [A] IV0 C2S: b'6\x95x\xd9\x10L\xa0\x91;\x1cq\xc5\xf2.\xfbHy\xe8\xe3I\xe1\x035_}\xa4%\xcf\n{\x0c\x98'                                                                    main.py:230
+                    00000000: 36 95 78 d9 10 4c a0 91 3b 1c 71 c5 f2 2e fb 48  6.x..L..;.q....H
+                    00000010: 79 e8 e3 49 e1 03 35 5f 7d a4 25 cf 0a 7b 0c 98  y..I..5_}.%..{..
+
+           INFO     SSHClient: [B] IV0 S2C: b'5\r\xdf\xd0\xd3\x8f\x15\x10\x84\xe8\xff\x145\xa37\xdb0Z\x01C\xef<`\x7fL\xab\xc0U^\x1c\xdb\x9d'                                                           main.py:230
+                    00000000: 35 0d df d0 d3 8f 15 10 84 e8 ff 14 35 a3 37 db  5...........5.7.
+                    00000010: 30 5a 01 43 ef 3c 60 7f 4c ab c0 55 5e 1c db 9d  0Z.C.<`.L..U^...
+
+           INFO     SSHClient: [C] Key C2S: b'\xcfg\x1e|\xd7\x14w\xd6\xe2\x00\xf3\xab<s\xe4\x90\x9e\xbb\xe1B[\xae\xe2\xb9\xd1{de\x93\r)a'                                                              main.py:230
+                    00000000: cf 67 1e 7c d7 14 77 d6 e2 00 f3 ab 3c 73 e4 90  .g.|..w.....<s..
+                    00000010: 9e bb e1 42 5b ae e2 b9 d1 7b 64 65 93 0d 29 61  ...B[....{de..)a
+
+           INFO     SSHClient: [D] Key S2C: b'\xdd\x9a\xce\x0c\x1c\x8c\xb7\xd5o_\xeb\xcf\xde\xd8\x8c\x88\x8a%2,\xc7\xd2\xe7(\xa8B\xcbM\xe9\x9d\xb3\xd3'                                                main.py:230
+                    00000000: dd 9a ce 0c 1c 8c b7 d5 6f 5f eb cf de d8 8c 88  ........o_......
+                    00000010: 8a 25 32 2c c7 d2 e7 28 a8 42 cb 4d e9 9d b3 d3  .%2,...(.B.M....
+
+           INFO     SSHClient: [E] MAC C2S: b'\xd11\xd9\x0c\x00Nn[\xdc\n\x9f\x0f\xb9\xf8\xe2\x95\xe11O#\xe4\x00)\xe8\xc0NX\xf2\x98\xa3\x15\x0f'                                                        main.py:230
+                    00000000: d1 31 d9 0c 00 4e 6e 5b dc 0a 9f 0f b9 f8 e2 95  .1...Nn[........
+                    00000010: e1 31 4f 23 e4 00 29 e8 c0 4e 58 f2 98 a3 15 0f  .1O#..)..NX.....
+
+           INFO     SSHClient: [F] MAC S2C: b'\xf5\x98\xabU\xd1]\x04\x83\xf3-\x03\xc9=\x9f_\x0b3\xec\xc8\x0f\x17A\r\x93iP\xa0\xcc\xe1\xb8\xba\x87'                                                     main.py:230
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           DEBUG    SSHSocketWrapper: s >> c [5]: 6cfd30b2ea                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=28 pad=16                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [27]: bcd48930491313f1eb620d2bbc2927ed 448207c49e8170a51b09f2                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 140c6f551723c2d21cc27d215b72857d 4cc113f0                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 6c fd 30 b2 ea bc d4 89 30 49 13 13 f1 eb 62 0d  l.0.....0I....b.
+                    00000010: 2b bc 29 27 ed 44 82 07 c4 9e 81 70 a5 1b 09 f2  +.)'.D.....p....
+                    00000020: 14 0c 6f 55 17 23 c2 d2 1c c2 7d 21 5b 72 85 7d  ..oU.#....}![r.}
+                    00000030: 4c c1 13 f0                                      L...
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 1c 10 02 00 00 00 06 6d 61 72 6b 75 73  ..........markus
+                    00000010: 09 fe 9b d4 72 b0 fd a2 0b 2c 3a 17 fa c5 21 96  ....r....,:...!.
+
+           INFO     SSHClient: Validate MAC #3 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 1c 10 02 00 00 00 06 6d 61 72 6b 75 73  ..........markus
+                    00000010: 09 fe 9b d4 72 b0 fd a2 0b 2c 3a 17 fa c5 21 96  ....r....,:...!.
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 3                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[3]: 2 (SSH2_MSG_IGNORE)                                                                                                             ssh_socket_wrapper.py:52
+SSHPacket(28, 16, b'\x02\x00\x00\x00\x06markus', b'\t\xfe\x9b\xd4r\xb0\xfd\xa2\x0b,:\x17\xfa\xc5!\x96', 2 (SSH2_MSG_IGNORE))
+           DEBUG    SSHPacket: Creating packet with length 44, padding length 32 (16), payload length 11 - 16                                                                                     ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 2c 20 02 00 00 00 06 6d 61 72 6b 75 73  ..., .....markus
+                    00000010: 6a 5e f2 1d 35 d7 f7 87 e5 96 f2 95 8e 5a eb f7  j^..5........Z..
+                    00000020: 80 eb e8 44 7f c6 43 69 4f db 15 0d 59 5e c2 ea  ...D..CiO...Y^..
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: 91 72 58 18 04 5b b7 a0 70 f7 82 99 fd 5d 9c 88  .rX..[..p....]..
+                    00000010: 6e 55 ab ed 54 f9 7d 93 4a dc b0 f8 7c 5d 64 e0  nU..T.}.J...|]d.
+                    00000020: dd 74 55 d1 12 0f a3 48 7d d3 5e 1e ef 75 d6 f2  .tU....H}.^..u..
+                    00000030: 1f 7f 15 db 1a ff 5f 85 73 fe c7 a7 14 f7 92 a6  ......_.s.......
+                    00000040: 2f ff 61 91                                      /.a.
+
+           DEBUG    SSHSocketWrapper: c >> s [68]: 91725818045bb7a070f78299fd5d9c88 6e55abed54f97d934adcb0f87c5d64e0 dd7455d1120fa3487dd35e1eef75d6f2 1f7f15db1aff5f8573fec7a714f792a6    ssh_socket_wrapper.py:28
+                    2fff6191
+           DEBUG    SSHPacket: Creating packet with length 44, padding length 26 (18), payload length 17 - 16                                                                                     ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 2c 1a 05 00 00 00 0c 73 73 68 2d 75 73  ...,......ssh-us
+                    00000010: 65 72 61 75 74 68 d0 9b 19 67 bb 25 97 7f f2 2f  erauth...g.%.../
+                    00000020: e3 d5 d8 84 7b 6a 94 35 ce 48 ed e3 cd 2a a0 fc  ....{j.5.H...*..
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: ec f2 ff 8e ed 23 1d f5 a6 48 4d 56 03 8d 40 e5  .....#...HMV..@.
+                    00000010: 69 b2 a9 24 fc 22 42 ff c2 ef dc bc 64 40 6e 0a  i..$."B.....d@n.
+                    00000020: a9 c3 da d3 0b 5d 2c 5c 66 2e 16 aa d7 2d aa bf  .....],\f....-..
+                    00000030: e1 11 a7 f0 69 60 c4 90 49 d4 8a dd cb e4 5b a8  ....i`..I.....[.
+                    00000040: 4f 5e ee d3                                      O^..
+
+           DEBUG    SSHSocketWrapper: c >> s [68]: ecf2ff8eed231df5a6484d56038d40e5 69b2a924fc2242ffc2efdcbc64406e0a a9c3dad30b5d2c5c662e16aad72daabf e111a7f06960c49049d48addcbe45ba8    ssh_socket_wrapper.py:28
+                    4f5eeed3
+           DEBUG    SSHSocketWrapper: s >> c [5]: 591f7a8833                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=28 pad=10                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [27]: 10b86449a5e5c141e8aa5a7b1776eabd 94e14ba3ed1b6b6d66980e                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: a28fd72a5f5e60fbc82ee35c1bf80eee 6bbd0854                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 59 1f 7a 88 33 10 b8 64 49 a5 e5 c1 41 e8 aa 5a  Y.z.3..dI...A..Z
+                    00000010: 7b 17 76 ea bd 94 e1 4b a3 ed 1b 6b 6d 66 98 0e  {.v....K...kmf..
+                    00000020: a2 8f d7 2a 5f 5e 60 fb c8 2e e3 5c 1b f8 0e ee  ...*_^`....\....
+                    00000030: 6b bd 08 54                                      k..T
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 1c 0a 06 00 00 00 0c 73 73 68 2d 75 73  ..........ssh-us
+                    00000010: 65 72 61 75 74 68 34 21 93 a1 5d 7c e1 08 5d ea  erauth4!..]|..].
+
+           INFO     SSHClient: Validate MAC #4 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 1c 0a 06 00 00 00 0c 73 73 68 2d 75 73  ..........ssh-us
+                    00000010: 65 72 61 75 74 68 34 21 93 a1 5d 7c e1 08 5d ea  erauth4!..]|..].
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 4                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[4]: 6 (SSH2_MSG_SERVICE_ACCEPT)                                                                                                     ssh_socket_wrapper.py:52
+           INFO     SSHClient: Response: SSHPacket(28, 10, b'\x06\x00\x00\x00\x0cssh-userauth', b'4!\x93\xa1]|\xe1\x08]\xea', 6 (SSH2_MSG_SERVICE_ACCEPT))                                             main.py:144
+           DEBUG    SSHPacket: Creating packet with length 76, padding length 20 (12), payload length 55 - 16                                                                                     ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 4c 14 32 00 00 00 07 61 6c 61 6b 72 61  ...L.2....alakra
+                    00000010: 6e 00 00 00 0e 73 73 68 2d 63 6f 6e 6e 65 63 74  n....ssh-connect
+                    00000020: 69 6f 6e 00 00 00 08 70 61 73 73 77 6f 72 64 00  ion....password.
+                    00000030: 00 00 00 08 6e 61 6c 61 6e 72 61 6e 57 20 6c 44  ....nalanranW lD
+                    00000040: 83 12 e7 f1 32 93 a5 79 7d f8 27 e9 d6 d3 b1 c1  ....2..y}.'.....
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: 88 e0 23 89 a6 46 21 89 86 af 85 75 3c c2 c0 f8  ..#..F!....u<...
+                    00000010: 95 43 b5 5d b0 4f 0d 6e 2c dd 59 71 98 21 04 45  .C.].O.n,.Yq.!.E
+                    00000020: bb 90 a1 68 c2 92 58 71 ce ec 8a bc 28 58 07 c6  ...h..Xq....(X..
+                    00000030: 5c 26 05 06 22 f2 63 87 2f 82 27 46 2f cc f1 be  \&..".c./.'F/...
+                    00000040: 77 43 d2 02 53 51 bb 87 88 60 44 62 49 dd 39 31  wC..SQ...`DbI.91
+                    00000050: cf 29 5a 9c 88 e2 79 e6 78 d5 a3 6e 31 94 1c bd  .)Z...y.x..n1...
+                    00000060: e4 ee 93 93                                      ....
+
+           DEBUG    SSHSocketWrapper: c >> s [100]: 88e02389a646218986af85753cc2c0f8 9543b55db04f0d6e2cdd597198210445 bb90a168c2925871ceec8abc285807c6 5c26050622f263872f8227462fccf1be   ssh_socket_wrapper.py:28
+                    7743d2025351bb878860446249dd3931 cf295a9c88e279e678d5a36e31941cbd e4ee9393
+[22:42:47] DEBUG    SSHSocketWrapper: s >> c [5]: 2b15e904eb                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=12 pad=10                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [11]: ca618cd8d5d519da05224b                                                                                                                 ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 1d0fe41b35084b69580c8fa54ef8692a 721e3da9                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 2b 15 e9 04 eb ca 61 8c d8 d5 d5 19 da 05 22 4b  +.....a......."K
+                    00000010: 1d 0f e4 1b 35 08 4b 69 58 0c 8f a5 4e f8 69 2a  ....5.KiX...N.i*
+                    00000020: 72 1e 3d a9                                      r.=.
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 0c 0a 34 0b 0b 5e cc 16 50 ea 2f f4 7d  .....4..^..P./.}
+
+           INFO     SSHClient: Validate MAC #5 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 0c 0a 34 0b 0b 5e cc 16 50 ea 2f f4 7d  .....4..^..P./.}
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 5                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[5]: 52 (SSH2_MSG_USERAUTH_SUCCESS)                                                                                                  ssh_socket_wrapper.py:52
+           INFO     SSHClient: Response: SSHPacket(12, 10, b'4', b'\x0b\x0b^\xcc\x16P\xea/\xf4}', 52 (SSH2_MSG_USERAUTH_SUCCESS))                                                                      main.py:138
+           DEBUG    SSHPacket: Creating packet with length 60, padding length 35 (19), payload length 24 - 16                                                                                     ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 3c 23 5a 00 00 00 07 73 65 73 73 69 6f  ...<#Z....sessio
+                    00000010: 6e 00 00 00 00 00 10 00 00 00 00 40 00 ae 86 55  n..........@...U
+                    00000020: e2 2b df 0c 93 17 27 1f e6 49 7b 0d 5f ed 6d 7c  .+....'..I{._.m|
+                    00000030: 39 e6 e8 6d 30 df df 83 ed 44 86 46 2d 5d 33 db  9..m0....D.F-]3.
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: fe ff e5 7c 5f 1f 2c 43 e2 3c c3 61 4c 81 70 b5  ...|_.,C.<.aL.p.
+                    00000010: 54 07 ca c5 c2 97 e1 fd 70 f6 e4 9f b8 6f 38 a4  T.......p....o8.
+                    00000020: dd 5d bb 9f e9 d1 e9 20 2a 77 5e 8a b2 30 1a ca  .]..... *w^..0..
+                    00000030: 30 1c c3 c5 67 7d 34 ad bf 30 cf 2e bb b8 e7 e7  0...g}4..0......
+                    00000040: 21 fb 54 dd 9a 15 c6 3c ed b0 a1 7a 76 c5 2c cc  !.T....<...zv.,.
+                    00000050: ca 86 dd fc                                      ....
+
+           DEBUG    SSHSocketWrapper: c >> s [84]: feffe57c5f1f2c43e23cc3614c8170b5 5407cac5c297e1fd70f6e49fb86f38a4 dd5dbb9fe9d1e9202a775e8ab2301aca 301cc3c5677d34adbf30cf2ebbb8e7e7    ssh_socket_wrapper.py:28
+                    21fb54dd9a15c63cedb0a17a76c52ccc ca86ddfc
+           DEBUG    SSHSocketWrapper: s >> c [5]: 75fa9db2c1                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=620 pad=16                                                                                                                                                  ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [619]: 87bbdd7f58e71c55b25f4a215655ba82 11363831e8885b5d6e6d711554e7d7cd 6463cd02f7b1b8dc5f9f1865bb4d2299 134d59cce00ae1c841fd52325dafdf6e   ssh_socket_wrapper.py:35
+                    57056dda9bb4300bee76194b44ccef7a e433d5ddab23c26481f3681d75aed745 135c8561264ff22e1da9e78a1c439cd2 ef50f97ab7ffe779352925b7b62db9dc 93364daa2543b99ba6ea392f2fc589ae
+                    724d6f3ba0393f4855b09619f0422167 87080f25fd053f286d389a562f07d14e 785cdfda26d8fca48b3b1d2c57eec9cd 73baedd51b2c84fde2f5e32459c089a2 b547bbcc032322ac818f4d54de21a6ca
+                    43b5cd1a73f6ff1878af4b08fe84cf0d eb12812b9460c033f249447605c89738 5857fd37d76f1a28185651048552b7c9 e9517dcfdfd92374fb28653da217a77e 7e56ba1072e0078e9b4799e2c04dbae0
+                    caa75ab6ae1124b7b6da3b29b6be6d4c 8d67079dfd891360ee8e143bc1beb5db bca6b06b139e356c172e445ea4435df9 a93a0ef4e04fffdc38ffda241e3468e8 49046b7d20bef904ecbada1783edf31a
+                    2bad355659dce77b805d98060e5829cb ed880906fff5680d0aa50aa5afedefcf f1329fa1f55543b93e33a07d656fd6e8 22da8f14688e32284579a0e2c22b5563 6347199074944f053d8900d0bf49e119
+                    a7d75faa665ff2758de0c662a2e3c418 bd68cc131f171efabd6953e853966bc5 873083297d69e60a7eb8b676cadd6fdb 9410c16db700f9af7e364e329cf21888 f72eaa2a29a3f61b0cc13fd3e9f6ea57
+                    0bb08168177ec572c13dfa8557ab739d 9b977b94118820f88dfac716d43d2769 2ee4d8a2dacac2984e3780b6aa7f52d9 e0266180fb5ef9d9fe8936bd142dc61a cfab4000abfd9659144f8d
+           DEBUG    SSHSocketWrapper: s >> c [20]: 992c798225c2470067c7b841648de1bd 10629a5d                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 75 fa 9d b2 c1 87 bb dd 7f 58 e7 1c 55 b2 5f 4a  u........X..U._J
+                    00000010: 21 56 55 ba 82 11 36 38 31 e8 88 5b 5d 6e 6d 71  !VU...681..[]nmq
+                    00000020: 15 54 e7 d7 cd 64 63 cd 02 f7 b1 b8 dc 5f 9f 18  .T...dc......_..
+                    00000030: 65 bb 4d 22 99 13 4d 59 cc e0 0a e1 c8 41 fd 52  e.M"..MY.....A.R
+                    00000040: 32 5d af df 6e 57 05 6d da 9b b4 30 0b ee 76 19  2]..nW.m...0..v.
+                    00000050: 4b 44 cc ef 7a e4 33 d5 dd ab 23 c2 64 81 f3 68  KD..z.3...#.d..h
+                    00000060: 1d 75 ae d7 45 13 5c 85 61 26 4f f2 2e 1d a9 e7  .u..E.\.a&O.....
+                    00000070: 8a 1c 43 9c d2 ef 50 f9 7a b7 ff e7 79 35 29 25  ..C...P.z...y5)%
+                    00000080: b7 b6 2d b9 dc 93 36 4d aa 25 43 b9 9b a6 ea 39  ..-...6M.%C....9
+                    00000090: 2f 2f c5 89 ae 72 4d 6f 3b a0 39 3f 48 55 b0 96  //...rMo;.9?HU..
+                    000000a0: 19 f0 42 21 67 87 08 0f 25 fd 05 3f 28 6d 38 9a  ..B!g...%..?(m8.
+                    000000b0: 56 2f 07 d1 4e 78 5c df da 26 d8 fc a4 8b 3b 1d  V/..Nx\..&....;.
+                    000000c0: 2c 57 ee c9 cd 73 ba ed d5 1b 2c 84 fd e2 f5 e3  ,W...s....,.....
+                    000000d0: 24 59 c0 89 a2 b5 47 bb cc 03 23 22 ac 81 8f 4d  $Y....G...#"...M
+                    000000e0: 54 de 21 a6 ca 43 b5 cd 1a 73 f6 ff 18 78 af 4b  T.!..C...s...x.K
+                    000000f0: 08 fe 84 cf 0d eb 12 81 2b 94 60 c0 33 f2 49 44  ........+.`.3.ID
+                    00000100: 76 05 c8 97 38 58 57 fd 37 d7 6f 1a 28 18 56 51  v...8XW.7.o.(.VQ
+                    00000110: 04 85 52 b7 c9 e9 51 7d cf df d9 23 74 fb 28 65  ..R...Q}...#t.(e
+                    00000120: 3d a2 17 a7 7e 7e 56 ba 10 72 e0 07 8e 9b 47 99  =...~~V..r....G.
+                    00000130: e2 c0 4d ba e0 ca a7 5a b6 ae 11 24 b7 b6 da 3b  ..M....Z...$...;
+                    00000140: 29 b6 be 6d 4c 8d 67 07 9d fd 89 13 60 ee 8e 14  )..mL.g.....`...
+                    00000150: 3b c1 be b5 db bc a6 b0 6b 13 9e 35 6c 17 2e 44  ;.......k..5l..D
+                    00000160: 5e a4 43 5d f9 a9 3a 0e f4 e0 4f ff dc 38 ff da  ^.C]..:...O..8..
+                    00000170: 24 1e 34 68 e8 49 04 6b 7d 20 be f9 04 ec ba da  $.4h.I.k} ......
+                    00000180: 17 83 ed f3 1a 2b ad 35 56 59 dc e7 7b 80 5d 98  .....+.5VY..{.].
+                    00000190: 06 0e 58 29 cb ed 88 09 06 ff f5 68 0d 0a a5 0a  ..X).......h....
+                    000001a0: a5 af ed ef cf f1 32 9f a1 f5 55 43 b9 3e 33 a0  ......2...UC.>3.
+                    000001b0: 7d 65 6f d6 e8 22 da 8f 14 68 8e 32 28 45 79 a0  }eo.."...h.2(Ey.
+                    000001c0: e2 c2 2b 55 63 63 47 19 90 74 94 4f 05 3d 89 00  ..+UccG..t.O.=..
+                    000001d0: d0 bf 49 e1 19 a7 d7 5f aa 66 5f f2 75 8d e0 c6  ..I...._.f_.u...
+                    000001e0: 62 a2 e3 c4 18 bd 68 cc 13 1f 17 1e fa bd 69 53  b.....h.......iS
+                    000001f0: e8 53 96 6b c5 87 30 83 29 7d 69 e6 0a 7e b8 b6  .S.k..0.)}i..~..
+                    00000200: 76 ca dd 6f db 94 10 c1 6d b7 00 f9 af 7e 36 4e  v..o....m....~6N
+                    00000210: 32 9c f2 18 88 f7 2e aa 2a 29 a3 f6 1b 0c c1 3f  2.......*).....?
+                    00000220: d3 e9 f6 ea 57 0b b0 81 68 17 7e c5 72 c1 3d fa  ....W...h.~.r.=.
+                    00000230: 85 57 ab 73 9d 9b 97 7b 94 11 88 20 f8 8d fa c7  .W.s...{... ....
+                    00000240: 16 d4 3d 27 69 2e e4 d8 a2 da ca c2 98 4e 37 80  ..='i........N7.
+                    00000250: b6 aa 7f 52 d9 e0 26 61 80 fb 5e f9 d9 fe 89 36  ...R..&a..^....6
+                    00000260: bd 14 2d c6 1a cf ab 40 00 ab fd 96 59 14 4f 8d  ..-....@....Y.O.
+                    00000270: 99 2c 79 82 25 c2 47 00 67 c7 b8 41 64 8d e1 bd  .,y.%.G.g..Ad...
+                    00000280: 10 62 9a 5d                                      .b.]
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 02 6c 10 50 00 00 00 17 68 6f 73 74 6b 65  ...l.P....hostke
+                    00000010: 79 73 2d 30 30 40 6f 70 65 6e 73 73 68 2e 63 6f  ys-00@openssh.co
+                    00000020: 6d 00 00 00 01 97 00 00 00 07 73 73 68 2d 72 73  m.........ssh-rs
+                    00000030: 61 00 00 00 03 01 00 01 00 00 01 81 00 9c 65 07  a.............e.
+                    00000040: 62 b3 1c 70 96 e3 78 6c 5c 96 7b 30 24 54 52 cf  b..p..xl\.{0$TR.
+                    00000050: 22 22 d6 f3 63 dd 0f 56 ed 6c b8 68 65 79 a0 de  ""..c..V.l.hey..
+                    00000060: af 82 e0 b4 14 4e b0 5f cd 38 78 2d 08 d9 b6 da  .....N._.8x-....
+                    00000070: 1b b1 52 bd fa 4c 4e 81 3f 94 d6 8c b6 f4 46 f8  ..R..LN.?.....F.
+                    00000080: 5c 81 92 9c db 32 58 9e 78 e0 29 47 38 11 21 70  \....2X.x.)G8.!p
+                    00000090: 93 b1 91 cb 9e 4b 58 6b 98 68 34 fa 2d 42 2a 25  .....KXk.h4.-B*%
+                    000000a0: f0 31 d4 a8 76 a7 a1 7a 2e ae 7f fb 91 92 cd 31  .1..v..z.......1
+                    000000b0: 4a ae 78 d9 a6 d4 b8 a2 d8 c0 f6 c7 4f ec 11 b4  J.x.........O...
+                    000000c0: 20 1f 5c 4e 7f ba d2 46 3d 56 8c 1d db af d1 bb   .\N...F=V......
+                    000000d0: 96 5c 17 72 27 74 34 af a3 d1 e6 54 6e 5d f1 b6  .\.r't4....Tn]..
+                    000000e0: 46 83 a8 99 7e 57 ac b2 f8 d5 f5 64 8c 53 bb c4  F...~W.....d.S..
+                    000000f0: 00 60 81 3d 27 e9 13 26 33 ad 99 5b c5 e4 8d 10  .`.='..&3..[....
+                    00000100: 6b d1 21 1b 7e 97 88 81 c4 cf 63 93 97 aa 48 c0  k.!.~.....c...H.
+                    00000110: 16 66 c6 01 c9 68 07 d0 bf a3 18 81 cd c4 18 43  .f...h.........C
+                    00000120: 3c 08 50 33 93 14 71 6a b7 89 ac b2 93 b6 d2 ed  <.P3..qj........
+                    00000130: 21 26 d9 45 93 d6 29 69 be 44 13 ff 5b ad 8f b6  !&.E..)i.D..[...
+                    00000140: 51 fa 3e 84 ad e3 04 48 f9 db 42 15 0a 24 3e a3  Q.>....H..B..$>.
+                    00000150: 04 e3 b9 ad aa 88 59 9b 14 41 c9 bf 81 3c 61 4d  ......Y..A...<aM
+                    00000160: c6 38 89 48 2a f8 59 8f 0c 27 14 37 95 31 6b db  .8.H*.Y..'.7.1k.
+                    00000170: 4d a7 f9 3d 3f 4c ac 56 e6 32 e8 d7 47 b7 3c 22  M..=?L.V.2..G.<"
+                    00000180: c2 22 6a e9 a1 5f d7 b3 c3 0f f7 40 25 34 65 09  ."j.._.....@%4e.
+                    00000190: 51 8e 97 9f 8a ed 03 e5 fb bb d5 f3 2e a7 c7 6c  Q..............l
+                    000001a0: 9b b3 c6 96 3c 8a a5 d7 62 89 37 0c 56 83 1d ce  ....<...b.7.V...
+                    000001b0: f3 6d 3d 67 01 1f 7b 2c 26 61 6e 72 87 00 00 00  .m=g..{,&anr....
+                    000001c0: 68 00 00 00 13 65 63 64 73 61 2d 73 68 61 32 2d  h....ecdsa-sha2-
+                    000001d0: 6e 69 73 74 70 32 35 36 00 00 00 08 6e 69 73 74  nistp256....nist
+                    000001e0: 70 32 35 36 00 00 00 41 04 c2 f1 13 5b 9c 8c 69  p256...A....[..i
+                    000001f0: 34 2c a4 a0 95 6a 31 10 e9 68 9a 17 fe d8 ef 8c  4,...j1..h......
+                    00000200: be bc 74 3b 12 06 dc 11 d5 ca 3c 1e f0 48 f0 cb  ..t;......<..H..
+                    00000210: 8b 9b b1 a7 a9 29 54 ac 1b c7 77 3b b0 3a 38 2b  .....)T...w;.:8+
+                    00000220: c7 a8 eb 90 02 8f 6a 92 bc 00 00 00 33 00 00 00  ......j.....3...
+                    00000230: 0b 73 73 68 2d 65 64 32 35 35 31 39 00 00 00 20  .ssh-ed25519...
+                    00000240: e1 b4 cf b8 e2 2c a5 f1 3c 2f 5d c7 85 6a c7 1f  .....,..</]..j..
+                    00000250: 51 88 32 85 71 05 85 29 69 bb 8f 50 3f f6 73 72  Q.2.q..)i..P?.sr
+                    00000260: 19 9b 6e fb 36 c7 de 41 11 ec 26 25 82 11 5f 53  ..n.6..A..&%.._S
+
+           INFO     SSHClient: Validate MAC #6 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 02 6c 10 50 00 00 00 17 68 6f 73 74 6b 65  ...l.P....hostke
+                    00000010: 79 73 2d 30 30 40 6f 70 65 6e 73 73 68 2e 63 6f  ys-00@openssh.co
+                    00000020: 6d 00 00 00 01 97 00 00 00 07 73 73 68 2d 72 73  m.........ssh-rs
+                    00000030: 61 00 00 00 03 01 00 01 00 00 01 81 00 9c 65 07  a.............e.
+                    00000040: 62 b3 1c 70 96 e3 78 6c 5c 96 7b 30 24 54 52 cf  b..p..xl\.{0$TR.
+                    00000050: 22 22 d6 f3 63 dd 0f 56 ed 6c b8 68 65 79 a0 de  ""..c..V.l.hey..
+                    00000060: af 82 e0 b4 14 4e b0 5f cd 38 78 2d 08 d9 b6 da  .....N._.8x-....
+                    00000070: 1b b1 52 bd fa 4c 4e 81 3f 94 d6 8c b6 f4 46 f8  ..R..LN.?.....F.
+                    00000080: 5c 81 92 9c db 32 58 9e 78 e0 29 47 38 11 21 70  \....2X.x.)G8.!p
+                    00000090: 93 b1 91 cb 9e 4b 58 6b 98 68 34 fa 2d 42 2a 25  .....KXk.h4.-B*%
+                    000000a0: f0 31 d4 a8 76 a7 a1 7a 2e ae 7f fb 91 92 cd 31  .1..v..z.......1
+                    000000b0: 4a ae 78 d9 a6 d4 b8 a2 d8 c0 f6 c7 4f ec 11 b4  J.x.........O...
+                    000000c0: 20 1f 5c 4e 7f ba d2 46 3d 56 8c 1d db af d1 bb   .\N...F=V......
+                    000000d0: 96 5c 17 72 27 74 34 af a3 d1 e6 54 6e 5d f1 b6  .\.r't4....Tn]..
+                    000000e0: 46 83 a8 99 7e 57 ac b2 f8 d5 f5 64 8c 53 bb c4  F...~W.....d.S..
+                    000000f0: 00 60 81 3d 27 e9 13 26 33 ad 99 5b c5 e4 8d 10  .`.='..&3..[....
+                    00000100: 6b d1 21 1b 7e 97 88 81 c4 cf 63 93 97 aa 48 c0  k.!.~.....c...H.
+                    00000110: 16 66 c6 01 c9 68 07 d0 bf a3 18 81 cd c4 18 43  .f...h.........C
+                    00000120: 3c 08 50 33 93 14 71 6a b7 89 ac b2 93 b6 d2 ed  <.P3..qj........
+                    00000130: 21 26 d9 45 93 d6 29 69 be 44 13 ff 5b ad 8f b6  !&.E..)i.D..[...
+                    00000140: 51 fa 3e 84 ad e3 04 48 f9 db 42 15 0a 24 3e a3  Q.>....H..B..$>.
+                    00000150: 04 e3 b9 ad aa 88 59 9b 14 41 c9 bf 81 3c 61 4d  ......Y..A...<aM
+                    00000160: c6 38 89 48 2a f8 59 8f 0c 27 14 37 95 31 6b db  .8.H*.Y..'.7.1k.
+                    00000170: 4d a7 f9 3d 3f 4c ac 56 e6 32 e8 d7 47 b7 3c 22  M..=?L.V.2..G.<"
+                    00000180: c2 22 6a e9 a1 5f d7 b3 c3 0f f7 40 25 34 65 09  ."j.._.....@%4e.
+                    00000190: 51 8e 97 9f 8a ed 03 e5 fb bb d5 f3 2e a7 c7 6c  Q..............l
+                    000001a0: 9b b3 c6 96 3c 8a a5 d7 62 89 37 0c 56 83 1d ce  ....<...b.7.V...
+                    000001b0: f3 6d 3d 67 01 1f 7b 2c 26 61 6e 72 87 00 00 00  .m=g..{,&anr....
+                    000001c0: 68 00 00 00 13 65 63 64 73 61 2d 73 68 61 32 2d  h....ecdsa-sha2-
+                    000001d0: 6e 69 73 74 70 32 35 36 00 00 00 08 6e 69 73 74  nistp256....nist
+                    000001e0: 70 32 35 36 00 00 00 41 04 c2 f1 13 5b 9c 8c 69  p256...A....[..i
+                    000001f0: 34 2c a4 a0 95 6a 31 10 e9 68 9a 17 fe d8 ef 8c  4,...j1..h......
+                    00000200: be bc 74 3b 12 06 dc 11 d5 ca 3c 1e f0 48 f0 cb  ..t;......<..H..
+                    00000210: 8b 9b b1 a7 a9 29 54 ac 1b c7 77 3b b0 3a 38 2b  .....)T...w;.:8+
+                    00000220: c7 a8 eb 90 02 8f 6a 92 bc 00 00 00 33 00 00 00  ......j.....3...
+                    00000230: 0b 73 73 68 2d 65 64 32 35 35 31 39 00 00 00 20  .ssh-ed25519...
+                    00000240: e1 b4 cf b8 e2 2c a5 f1 3c 2f 5d c7 85 6a c7 1f  .....,..</]..j..
+                    00000250: 51 88 32 85 71 05 85 29 69 bb 8f 50 3f f6 73 72  Q.2.q..)i..P?.sr
+                    00000260: 19 9b 6e fb 36 c7 de 41 11 ec 26 25 82 11 5f 53  ..n.6..A..&%.._S
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 6                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[6]: 80 (SSH2_MSG_GLOBAL_REQUEST)                                                                                                    ssh_socket_wrapper.py:52
+           INFO     SSHClient: Global request: SSHMessageGlobalRequestPacket(request_name=b'hostkeys-00@openssh.com', want_reply=False,                                                                main.py:113
+                    extra_data=b'\x00\x00\x00\x07ssh-rsa\x00\x00\x00\x03\x01\x00\x01\x00\x00\x01\x81\x00\x9ce\x07b\xb3\x1cp\x96\xe3xl\\\x96{0$TR\xcf""\xd6\xf3c\xdd\x0fV\xedl\xb8hey\xa0\xde\xaf\x82\x
+                    e0\xb4\x14N\xb0_\xcd8x-\x08\xd9\xb6\xda\x1b\xb1R\xbd\xfaLN\x81?\x94\xd6\x8c\xb6\xf4F\xf8\\\x81\x92\x9c\xdb2X\x9ex\xe0)G8\x11!p\x93\xb1\x91\xcb\x9eKXk\x98h4\xfa-B*%\xf01\xd4\xa8v\
+                    xa7\xa1z.\xae\x7f\xfb\x91\x92\xcd1J\xaex\xd9\xa6\xd4\xb8\xa2\xd8\xc0\xf6\xc7O\xec\x11\xb4
+                    \x1f\\N\x7f\xba\xd2F=V\x8c\x1d\xdb\xaf\xd1\xbb\x96\\\x17r\'t4\xaf\xa3\xd1\xe6Tn]\xf1\xb6F\x83\xa8\x99~W\xac\xb2\xf8\xd5\xf5d\x8cS\xbb\xc4\x00`\x81=\'\xe9\x13&3\xad\x99[\xc5\xe4\x
+                    8d\x10k\xd1!\x1b~\x97\x88\x81\xc4\xcfc\x93\x97\xaaH\xc0\x16f\xc6\x01\xc9h\x07\xd0\xbf\xa3\x18\x81\xcd\xc4\x18C<\x08P3\x93\x14qj\xb7\x89\xac\xb2\x93\xb6\xd2\xed!&\xd9E\x93\xd6)i\x
+                    beD\x13\xff[\xad\x8f\xb6Q\xfa>\x84\xad\xe3\x04H\xf9\xdbB\x15\n$>\xa3\x04\xe3\xb9\xad\xaa\x88Y\x9b\x14A\xc9\xbf\x81<aM\xc68\x89H*\xf8Y\x8f\x0c\'\x147\x951k\xdbM\xa7\xf9=?L\xacV\xe
+                    62\xe8\xd7G\xb7<"\xc2"j\xe9\xa1_\xd7\xb3\xc3\x0f\xf7@%4e\tQ\x8e\x97\x9f\x8a\xed\x03\xe5\xfb\xbb\xd5\xf3.\xa7\xc7l\x9b\xb3\xc6\x96<\x8a\xa5\xd7b\x897\x0cV\x83\x1d\xce\xf3m=g\x01\x
+                    1f{,&anr\x87')
+           DEBUG    SSHPacket: Creating packet with length 28, padding length 26 (18), payload length 1 - 16                                                                                      ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 1c 1a 52 48 d9 f5 66 58 ce dc 99 23 93  .....RH..fX...#.
+                    00000010: aa 96 85 d4 12 fd 82 02 dc 53 65 f7 f7 89 f8 df  .........Se.....
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: d7 3c 2d 29 63 b0 a1 e9 3b 8a 62 42 2d 06 d2 1e  .<-)c...;.bB-...
+                    00000010: 3e 0b 81 44 fe 29 be 4a 56 67 31 0c aa e0 57 9d  >..D.).JVg1...W.
+                    00000020: 96 e7 e5 9a 77 4a 1d 40 ad 93 0d bf 0f 97 f6 0c  ....wJ.@........
+                    00000030: af c5 f5 f2                                      ....
+
+           DEBUG    SSHSocketWrapper: c >> s [52]: d73c2d2963b0a1e93b8a62422d06d21e 3e0b8144fe29be4a5667310caae0579d 96e7e59a774a1d40ad930dbf0f97f60c afc5f5f2                            ssh_socket_wrapper.py:28
+           DEBUG    SSHSocketWrapper: s >> c [5]: 13b4e6e3f8                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=28 pad=10                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [27]: 54bcaa4212c9736e93f61fdeae6bcfe0 f85285902c93b7fd71d520                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 0e437a4f7c3a04e1f8a11e084cd20804 7a29b108                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 13 b4 e6 e3 f8 54 bc aa 42 12 c9 73 6e 93 f6 1f  .....T..B..sn...
+                    00000010: de ae 6b cf e0 f8 52 85 90 2c 93 b7 fd 71 d5 20  ..k...R..,...q.
+                    00000020: 0e 43 7a 4f 7c 3a 04 e1 f8 a1 1e 08 4c d2 08 04  .CzO|:......L...
+                    00000030: 7a 29 b1 08                                      z)..
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 1c 0a 5b 00 00 00 00 00 00 00 00 00 00  .....[..........
+                    00000010: 00 00 00 00 80 00 ec f5 ab ee ca 94 21 b5 e2 7e  ............!..~
+
+           INFO     SSHClient: Validate MAC #7 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 1c 0a 5b 00 00 00 00 00 00 00 00 00 00  .....[..........
+                    00000010: 00 00 00 00 80 00 ec f5 ab ee ca 94 21 b5 e2 7e  ............!..~
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 7                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[7]: 91 (SSH2_MSG_CHANNEL_OPEN_CONFIRMATION)                                                                                         ssh_socket_wrapper.py:52
+           INFO     SSHClient: Channel open: SSHMessageChannelOpenConfirmationPacket(recipient_channel=0, sender_channel=0, initial_window_size=0, maximum_packet_size=32768)                          main.py:127
+           DEBUG    SSHPacket: Creating packet with length 60, padding length 34 (18), payload length 25 - 16                                                                                     ssh_packet.py:53
+           DEBUG    SSHPacket: [SEND] Unencrypted packet:                                                                                                                                        ssh_packet.py:109
+                    00000000: 00 00 00 3c 22 62 00 00 00 00 00 00 00 04 65 78  ...<"b........ex
+                    00000010: 65 63 01 00 00 00 07 65 63 68 6f 20 68 69 35 75  ec.....echo hi5u
+                    00000020: f8 c7 27 65 73 6b c1 3e 35 0c 58 03 7b 93 bd 9c  ..'esk.>5.X.{...
+                    00000030: 7a 7b cf be 0f 15 2d 7a 6a bf 4d ff 32 3a 31 b6  z{....-zj.M.2:1.
+
+           DEBUG    SSHPacket: [SEND] Encrypted packet:                                                                                                                                          ssh_packet.py:114
+                    00000000: 01 c6 a8 de 8e 93 76 32 02 9d 57 dc 95 45 da 82  ......v2..W..E..
+                    00000010: c4 c9 b8 3b de 32 c6 9e 8b 91 87 2b 4d d5 52 c6  ...;.2.....+M.R.
+                    00000020: 9b 36 72 e9 eb 38 41 41 4b a3 59 6d f7 cf f2 82  .6r..8AAK.Ym....
+                    00000030: a5 7a 59 6c 9a 82 5e 2d 87 74 7b 28 e3 94 21 72  .zYl..^-.t{(..!r
+                    00000040: 9d 60 06 5b 5a c6 27 98 98 ae e6 48 41 54 82 62  .`.[Z.'....HAT.b
+                    00000050: 8d 6a dc ad                                      .j..
+
+           DEBUG    SSHSocketWrapper: c >> s [84]: 01c6a8de8e937632029d57dc9545da82 c4c9b83bde32c69e8b91872b4dd552c6 9b3672e9eb3841414ba3596df7cff282 a57a596c9a825e2d87747b28e3942172    ssh_socket_wrapper.py:28
+                    9d60065b5ac6279898aee64841548262 8d6adcad
+           DEBUG    SSHSocketWrapper: s >> c [5]: 8a3e28d929                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=28 pad=18                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [27]: c4b7026458f0d63ed97ac6b8780c7ada 252ff0def43afa1c2e1069                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 762b701fb04a7c8216f0c4ce5452571a bcab6bf3                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 8a 3e 28 d9 29 c4 b7 02 64 58 f0 d6 3e d9 7a c6  .>(.)...dX..>.z.
+                    00000010: b8 78 0c 7a da 25 2f f0 de f4 3a fa 1c 2e 10 69  .x.z.%/...:....i
+                    00000020: 76 2b 70 1f b0 4a 7c 82 16 f0 c4 ce 54 52 57 1a  v+p..J|.....TRW.
+                    00000030: bc ab 6b f3                                      ..k.
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 1c 12 5d 00 00 00 00 00 20 00 00 5c c8  .....]..... ..\.
+                    00000010: 82 5d a8 49 b2 de 55 29 01 36 37 f0 ed 5e 5c 76  .].I..U).67..^\v
+
+           INFO     SSHClient: Validate MAC #8 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 1c 12 5d 00 00 00 00 00 20 00 00 5c c8  .....]..... ..\.
+                    00000010: 82 5d a8 49 b2 de 55 29 01 36 37 f0 ed 5e 5c 76  .].I..U).67..^\v
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 8                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[8]: 93 (SSH2_MSG_CHANNEL_WINDOW_ADJUST)                                                                                             ssh_socket_wrapper.py:52
+           INFO     SSHClient: Waiting for data... 93 (SSH2_MSG_CHANNEL_WINDOW_ADJUST)                                                                                                                 main.py:103
+           DEBUG    SSHSocketWrapper: s >> c [5]: bead4d1a80                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=12 pad=6                                                                                                                                                    ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [11]: e5a6fd616858172de128bb                                                                                                                 ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 4b9c88317c235e6493c57a4e66873289 fc496a17                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: be ad 4d 1a 80 e5 a6 fd 61 68 58 17 2d e1 28 bb  ..M.....ahX.-.(.
+                    00000010: 4b 9c 88 31 7c 23 5e 64 93 c5 7a 4e 66 87 32 89  K..1|#^d..zNf.2.
+                    00000020: fc 49 6a 17                                      .Ij.
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 0c 06 63 00 00 00 00 c0 03 e5 e7 b2 19  .....c..........
+
+           INFO     SSHClient: Validate MAC #9 on                                                                                                                                                       main.py:59
+                    00000000: 00 00 00 0c 06 63 00 00 00 00 c0 03 e5 e7 b2 19  .....c..........
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 9                                                                                                                                              main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[9]: 99 (SSH2_MSG_CHANNEL_SUCCESS)                                                                                                   ssh_socket_wrapper.py:52
+           INFO     SSHClient: Waiting for data... 99 (SSH2_MSG_CHANNEL_SUCCESS)                                                                                                                       main.py:103
+           DEBUG    SSHSocketWrapper: s >> c [5]: 5f487ef4a8                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=348 pad=17                                                                                                                                                  ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [347]: 55217ef63e368b98ce3934e0957571f6 ac2decfe7a079a8d4f804b7d42ba3715 5b5ae2b94811ba0977fd80b8712c6281 6b8c2a6d4105de457434b7b9513e6950   ssh_socket_wrapper.py:35
+                    cc1d6682a7c586a36143c122f4a8ac2f db84ae56c1b74edbc0ba7ff66b07c609 8b2f75af4464e64dec9d040a5731b4b3 153f8443cd3a42b9027ac5ce01988606 a20be1e5fa7427fbe0843f9d15daeea1
+                    2406c402db487f6075a63b1055ad98c8 75fcdb887c000172927538951a106ffc 95bb78de7259e3acaa718ecc40c129b8 41b955058c45d837d15b71406d7e060a 0fb247e071f737e8502f5c9626ee5a84
+                    0b67efeb7277c20dc2e656b74a1653e0 5d23e403bcfaca156f7f41b3a748ed2f 98d48ca36afa20f784dbd6575e62481e 7cd4cc3288482d8978e7964f0e9eb281 47f677af14063bfbc846ab53000070df
+                    84f7877b3a376af303fc75fd22458507 b175be8778907b93e0931c86314e3015 df9fcac3e86679d1a589fe
+           DEBUG    SSHSocketWrapper: s >> c [20]: e8f1d664575fda44e110da09d361d922 d1de3883                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 5f 48 7e f4 a8 55 21 7e f6 3e 36 8b 98 ce 39 34  _H~..U!~.>6...94
+                    00000010: e0 95 75 71 f6 ac 2d ec fe 7a 07 9a 8d 4f 80 4b  ..uq..-..z...O.K
+                    00000020: 7d 42 ba 37 15 5b 5a e2 b9 48 11 ba 09 77 fd 80  }B.7.[Z..H...w..
+                    00000030: b8 71 2c 62 81 6b 8c 2a 6d 41 05 de 45 74 34 b7  .q,b.k.*mA..Et4.
+                    00000040: b9 51 3e 69 50 cc 1d 66 82 a7 c5 86 a3 61 43 c1  .Q>iP..f.....aC.
+                    00000050: 22 f4 a8 ac 2f db 84 ae 56 c1 b7 4e db c0 ba 7f  ".../...V..N....
+                    00000060: f6 6b 07 c6 09 8b 2f 75 af 44 64 e6 4d ec 9d 04  .k..../u.Dd.M...
+                    00000070: 0a 57 31 b4 b3 15 3f 84 43 cd 3a 42 b9 02 7a c5  .W1...?.C.:B..z.
+                    00000080: ce 01 98 86 06 a2 0b e1 e5 fa 74 27 fb e0 84 3f  ..........t'...?
+                    00000090: 9d 15 da ee a1 24 06 c4 02 db 48 7f 60 75 a6 3b  .....$....H.`u.;
+                    000000a0: 10 55 ad 98 c8 75 fc db 88 7c 00 01 72 92 75 38  .U...u...|..r.u8
+                    000000b0: 95 1a 10 6f fc 95 bb 78 de 72 59 e3 ac aa 71 8e  ...o...x.rY...q.
+                    000000c0: cc 40 c1 29 b8 41 b9 55 05 8c 45 d8 37 d1 5b 71  .@.).A.U..E.7.[q
+                    000000d0: 40 6d 7e 06 0a 0f b2 47 e0 71 f7 37 e8 50 2f 5c  @m~....G.q.7.P/\
+                    000000e0: 96 26 ee 5a 84 0b 67 ef eb 72 77 c2 0d c2 e6 56  .&.Z..g..rw....V
+                    000000f0: b7 4a 16 53 e0 5d 23 e4 03 bc fa ca 15 6f 7f 41  .J.S.]#......o.A
+                    00000100: b3 a7 48 ed 2f 98 d4 8c a3 6a fa 20 f7 84 db d6  ..H./....j. ....
+                    00000110: 57 5e 62 48 1e 7c d4 cc 32 88 48 2d 89 78 e7 96  W^bH.|..2.H-.x..
+                    00000120: 4f 0e 9e b2 81 47 f6 77 af 14 06 3b fb c8 46 ab  O....G.w...;..F.
+                    00000130: 53 00 00 70 df 84 f7 87 7b 3a 37 6a f3 03 fc 75  S..p....{:7j...u
+                    00000140: fd 22 45 85 07 b1 75 be 87 78 90 7b 93 e0 93 1c  ."E...u..x.{....
+                    00000150: 86 31 4e 30 15 df 9f ca c3 e8 66 79 d1 a5 89 fe  .1N0......fy....
+                    00000160: e8 f1 d6 64 57 5f da 44 e1 10 da 09 d3 61 d9 22  ...dW_.D.....a."
+                    00000170: d1 de 38 83                                      ..8.
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 01 5c 11 5f 00 00 00 00 00 00 00 01 00 00  ...\._..........
+                    00000010: 01 3d 45 6e 76 69 72 6f 6e 6d 65 6e 74 3a 0a 20  .=Environment:.
+                    00000020: 20 55 53 45 52 3d 61 6c 61 6b 72 61 6e 0a 20 20   USER=alakran.
+                    00000030: 4c 4f 47 4e 41 4d 45 3d 61 6c 61 6b 72 61 6e 0a  LOGNAME=alakran.
+                    00000040: 20 20 48 4f 4d 45 3d 2f 68 6f 6d 65 2f 61 6c 61    HOME=/home/ala
+                    00000050: 6b 72 61 6e 0a 20 20 50 41 54 48 3d 2f 75 73 72  kran.  PATH=/usr
+                    00000060: 2f 62 69 6e 3a 2f 62 69 6e 3a 2f 75 73 72 2f 73  /bin:/bin:/usr/s
+                    00000070: 62 69 6e 3a 2f 73 62 69 6e 3a 2f 75 73 72 2f 6c  bin:/sbin:/usr/l
+                    00000080: 6f 63 61 6c 2f 62 69 6e 0a 20 20 4d 41 49 4c 3d  ocal/bin.  MAIL=
+                    00000090: 2f 76 61 72 2f 6d 61 69 6c 2f 61 6c 61 6b 72 61  /var/mail/alakra
+                    000000a0: 6e 0a 20 20 53 48 45 4c 4c 3d 2f 62 69 6e 2f 73  n.  SHELL=/bin/s
+                    000000b0: 68 0a 20 20 53 53 48 5f 43 4c 49 45 4e 54 3d 31  h.  SSH_CLIENT=1
+                    000000c0: 32 37 2e 30 2e 30 2e 31 20 34 31 37 34 32 20 38  27.0.0.1 41742 8
+                    000000d0: 32 32 32 0a 20 20 53 53 48 5f 43 4f 4e 4e 45 43  222.  SSH_CONNEC
+                    000000e0: 54 49 4f 4e 3d 31 32 37 2e 30 2e 30 2e 31 20 34  TION=127.0.0.1 4
+                    000000f0: 31 37 34 32 20 31 32 37 2e 30 2e 30 2e 31 20 38  1742 127.0.0.1 8
+                    00000100: 32 32 32 0a 43 6f 75 6c 64 20 6e 6f 74 20 63 68  222.Could not ch
+                    00000110: 64 69 72 20 74 6f 20 68 6f 6d 65 20 64 69 72 65  dir to home dire
+                    00000120: 63 74 6f 72 79 20 2f 68 6f 6d 65 2f 61 6c 61 6b  ctory /home/alak
+                    00000130: 72 61 6e 3a 20 4e 6f 20 73 75 63 68 20 66 69 6c  ran: No such fil
+                    00000140: 65 20 6f 72 20 64 69 72 65 63 74 6f 72 79 0a d2  e or directory..
+                    00000150: c0 94 21 1f d1 8f d1 49 09 1c f2 57 78 24 48 d9  ..!....I...Wx$H.
+
+           INFO     SSHClient: Validate MAC #10 on                                                                                                                                                      main.py:59
+                    00000000: 00 00 01 5c 11 5f 00 00 00 00 00 00 00 01 00 00  ...\._..........
+                    00000010: 01 3d 45 6e 76 69 72 6f 6e 6d 65 6e 74 3a 0a 20  .=Environment:.
+                    00000020: 20 55 53 45 52 3d 61 6c 61 6b 72 61 6e 0a 20 20   USER=alakran.
+                    00000030: 4c 4f 47 4e 41 4d 45 3d 61 6c 61 6b 72 61 6e 0a  LOGNAME=alakran.
+                    00000040: 20 20 48 4f 4d 45 3d 2f 68 6f 6d 65 2f 61 6c 61    HOME=/home/ala
+                    00000050: 6b 72 61 6e 0a 20 20 50 41 54 48 3d 2f 75 73 72  kran.  PATH=/usr
+                    00000060: 2f 62 69 6e 3a 2f 62 69 6e 3a 2f 75 73 72 2f 73  /bin:/bin:/usr/s
+                    00000070: 62 69 6e 3a 2f 73 62 69 6e 3a 2f 75 73 72 2f 6c  bin:/sbin:/usr/l
+                    00000080: 6f 63 61 6c 2f 62 69 6e 0a 20 20 4d 41 49 4c 3d  ocal/bin.  MAIL=
+                    00000090: 2f 76 61 72 2f 6d 61 69 6c 2f 61 6c 61 6b 72 61  /var/mail/alakra
+                    000000a0: 6e 0a 20 20 53 48 45 4c 4c 3d 2f 62 69 6e 2f 73  n.  SHELL=/bin/s
+                    000000b0: 68 0a 20 20 53 53 48 5f 43 4c 49 45 4e 54 3d 31  h.  SSH_CLIENT=1
+                    000000c0: 32 37 2e 30 2e 30 2e 31 20 34 31 37 34 32 20 38  27.0.0.1 41742 8
+                    000000d0: 32 32 32 0a 20 20 53 53 48 5f 43 4f 4e 4e 45 43  222.  SSH_CONNEC
+                    000000e0: 54 49 4f 4e 3d 31 32 37 2e 30 2e 30 2e 31 20 34  TION=127.0.0.1 4
+                    000000f0: 31 37 34 32 20 31 32 37 2e 30 2e 30 2e 31 20 38  1742 127.0.0.1 8
+                    00000100: 32 32 32 0a 43 6f 75 6c 64 20 6e 6f 74 20 63 68  222.Could not ch
+                    00000110: 64 69 72 20 74 6f 20 68 6f 6d 65 20 64 69 72 65  dir to home dire
+                    00000120: 63 74 6f 72 79 20 2f 68 6f 6d 65 2f 61 6c 61 6b  ctory /home/alak
+                    00000130: 72 61 6e 3a 20 4e 6f 20 73 75 63 68 20 66 69 6c  ran: No such fil
+                    00000140: 65 20 6f 72 20 64 69 72 65 63 74 6f 72 79 0a d2  e or directory..
+                    00000150: c0 94 21 1f d1 8f d1 49 09 1c f2 57 78 24 48 d9  ..!....I...Wx$H.
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 10                                                                                                                                             main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[10]: 95 (SSH2_MSG_CHANNEL_EXTENDED_DATA)                                                                                            ssh_socket_wrapper.py:52
+           INFO     SSHClient: Waiting for data... 95 (SSH2_MSG_CHANNEL_EXTENDED_DATA)                                                                                                                 main.py:103
+           DEBUG    SSHSocketWrapper: s >> c [5]: 97d1542aa1                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=44 pad=18                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [43]: 21b930e599689567efbe758e1686c95b 4618f4e3ee45dcb2ccfadd2163cf0e59 1f7c38b45a1cc83552e27e                                               ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: ed93b0fece0e0c016902a60118da9e50 7940f74d                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: 97 d1 54 2a a1 21 b9 30 e5 99 68 95 67 ef be 75  ..T*.!.0..h.g..u
+                    00000010: 8e 16 86 c9 5b 46 18 f4 e3 ee 45 dc b2 cc fa dd  ....[F....E.....
+                    00000020: 21 63 cf 0e 59 1f 7c 38 b4 5a 1c c8 35 52 e2 7e  !c..Y.|8.Z..5R.~
+                    00000030: ed 93 b0 fe ce 0e 0c 01 69 02 a6 01 18 da 9e 50  ........i......P
+                    00000040: 79 40 f7 4d                                      y@.M
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 2c 12 62 00 00 00 00 00 00 00 0b 65 78  ...,.b........ex
+                    00000010: 69 74 2d 73 74 61 74 75 73 00 00 00 00 00 b5 2e  it-status.......
+                    00000020: e6 24 f1 63 fc 2c 33 f6 df 84 23 62 40 1b f9 9f  .$.c.,3...#b@...
+
+           INFO     SSHClient: Validate MAC #11 on                                                                                                                                                      main.py:59
+                    00000000: 00 00 00 2c 12 62 00 00 00 00 00 00 00 0b 65 78  ...,.b........ex
+                    00000010: 69 74 2d 73 74 61 74 75 73 00 00 00 00 00 b5 2e  it-status.......
+                    00000020: e6 24 f1 63 fc 2c 33 f6 df 84 23 62 40 1b f9 9f  .$.c.,3...#b@...
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 11                                                                                                                                             main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[11]: 98 (SSH2_MSG_CHANNEL_REQUEST)                                                                                                  ssh_socket_wrapper.py:52
+           INFO     SSHClient: Waiting for data... 98 (SSH2_MSG_CHANNEL_REQUEST)                                                                                                                       main.py:103
+           DEBUG    SSHSocketWrapper: s >> c [5]: f88c2f5a51                                                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: length=28 pad=15                                                                                                                                                   ssh_packet.py:84
+           DEBUG    SSHSocketWrapper: s >> c [27]: 0c55de70e9a24c0034280f1087074081 4965dfb4fe580e71d25464                                                                                ssh_socket_wrapper.py:35
+           DEBUG    SSHSocketWrapper: s >> c [20]: 2ead9123517a919a6a71de2108eaa3af 048ada32                                                                                              ssh_socket_wrapper.py:35
+           DEBUG    SSHPacket: [RECV] Encrypted packet:                                                                                                                                           ssh_packet.py:91
+                    00000000: f8 8c 2f 5a 51 0c 55 de 70 e9 a2 4c 00 34 28 0f  ../ZQ.U.p..L.4(.
+                    00000010: 10 87 07 40 81 49 65 df b4 fe 58 0e 71 d2 54 64  ...@.Ie...X.q.Td
+                    00000020: 2e ad 91 23 51 7a 91 9a 6a 71 de 21 08 ea a3 af  ...#Qz..jq.!....
+                    00000030: 04 8a da 32                                      ...2
+
+           DEBUG    SSHPacket: [RECV] Decrypted packet:                                                                                                                                           ssh_packet.py:92
+                    00000000: 00 00 00 1c 0f 5e 00 00 00 00 00 00 00 03 68 69  .....^........hi
+                    00000010: 0a 83 5f 51 ff 51 63 0f aa 2a 16 6b be 62 69 14  .._Q.Qc..*.k.bi.
+
+           INFO     SSHClient: Validate MAC #12 on                                                                                                                                                      main.py:59
+                    00000000: 00 00 00 1c 0f 5e 00 00 00 00 00 00 00 03 68 69  .....^........hi
+                    00000010: 0a 83 5f 51 ff 51 63 0f aa 2a 16 6b be 62 69 14  .._Q.Qc..*.k.bi.
+
+           INFO     SSHClient: mac_s2c is                                                                                                                                                               main.py:60
+                    00000000: f5 98 ab 55 d1 5d 04 83 f3 2d 03 c9 3d 9f 5f 0b  ...U.]...-..=._.
+                    00000010: 33 ec c8 0f 17 41 0d 93 69 50 a0 cc e1 b8 ba 87  3....A..iP......
+
+           INFO     SSHClient: MAC VALIDATED with offset 12                                                                                                                                             main.py:63
+           DEBUG    SSHSocketWrapper: Received packet[12]: 94 (SSH2_MSG_CHANNEL_DATA)                                                                                                     ssh_socket_wrapper.py:52
+           INFO     SSHClient: Response: SSHMessageChannelDataPacket(recipient_channel=0, data=b'hi\n')                                                                                                main.py:107
+           INFO     SSHClient: Channel data: b'^\x00\x00\x00\x00\x00\x00\x00\x03hi\n' channel_data.recipient_channel=0 channel_data.data=b'hi\n'                                                       main.py:108
+⋊> /d/d/G/ssh on report ⨯                                                                                                                                                                          (main) 22:42:47
