@@ -272,87 +272,6 @@ class SSHMessageKexdhReplyPacket(Packet):
       request_str(source)
     )
 
-#
-# @dataclass
-# class SSHKEXInitPacket(Packet):
-#     """
-#     byte         SSH_MSG_KEXINIT
-#     byte[16]     cookie (random bytes)
-#     name-list    kex_algorithms
-#     name-list    server_host_key_algorithms
-#     name-list    encryption_algorithms_client_to_server
-#     name-list    encryption_algorithms_server_to_client
-#     name-list    mac_algorithms_client_to_server
-#     name-list    mac_algorithms_server_to_client
-#     name-list    compression_algorithms_client_to_server
-#     name-list    compression_algorithms_server_to_client
-#     name-list    languages_client_to_server
-#     name-list    languages_server_to_client
-#     boolean      first_kex_packet_follows
-#     uint32       0 (reserved for future extension)
-#     """
-#     type = SSHConstants.SSH2_MSG_KEXINIT
-#     cookie: bytes
-#     kex_algorithms: list[bytes]
-#     server_host_key_algorithms: list[bytes]
-#     encryption_algorithms_client_to_server: list[bytes]
-#     encryption_algorithms_server_to_client: list[bytes]
-#     mac_algorithms_client_to_server: list[bytes]
-#     mac_algorithms_server_to_client: list[bytes]
-#     compression_algorithms_client_to_server: list[bytes]
-#     compression_algorithms_server_to_client: list[bytes]
-#     languages_client_to_server: list[bytes]
-#     languages_server_to_client: list[bytes]
-#     first_kex_packet_follows: bool
-#     reserved: int
-#
-#     def payload(self) -> bytes:
-#         return (
-#             self.cookie +
-#             encode_namelist(self.kex_algorithms) +
-#             encode_namelist(self.server_host_key_algorithms) +
-#             encode_namelist(self.encryption_algorithms_client_to_server) +
-#             encode_namelist(self.encryption_algorithms_server_to_client) +
-#             encode_namelist(self.mac_algorithms_client_to_server) +
-#             encode_namelist(self.mac_algorithms_server_to_client) +
-#             encode_namelist(self.compression_algorithms_client_to_server) +
-#             encode_namelist(self.compression_algorithms_server_to_client) +
-#             encode_namelist(self.languages_client_to_server) +
-#             encode_namelist(self.languages_server_to_client) +
-#             encode_bool(self.first_kex_packet_follows) +
-#             encode_uint32(self.reserved)
-#         )
-#
-#     @classmethod
-#     def request(cls, source: BytesReadWritable) -> Self:
-#         return cls(
-#             source.recv(16),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_namelist(source),
-#             request_bool(source),
-#             request_uint32(source)
-#         )
-#
-#
-#
-#
-#     def assert_supports_algorithms(self, other_key: Self):
-#         assert other_key.kex_algorithms[0] in self.kex_algorithms, "Server does not support DH key exchange"
-#         assert other_key.server_host_key_algorithms[0] in self.server_host_key_algorithms, "Server does not support RSA key exchange"
-#         assert other_key.encryption_algorithms_client_to_server[0] in self.encryption_algorithms_client_to_server, "Server does not support AES encryption"
-#         assert other_key.encryption_algorithms_server_to_client[0] in self.encryption_algorithms_server_to_client, "Server does not support AES encryption"
-#         assert other_key.mac_algorithms_client_to_server[0] in self.mac_algorithms_client_to_server, "Server does not support HMAC-SHA1"
-#         assert other_key.mac_algorithms_server_to_client[0] in self.mac_algorithms_server_to_client, "Server does not support HMAC-SHA1"
-#         assert other_key.compression_algorithms_client_to_server[0] in self.compression_algorithms_client_to_server, "Server does not support not using compression"
-#         assert other_key.compression_algorithms_server_to_client[0] in self.compression_algorithms_server_to_client, "Server does not support not using compression"
 @dataclass
 class SSHKEXInitPacket(Packet):
   """
@@ -440,3 +359,19 @@ class SSHKEXInitPacket(Packet):
              0] in self.compression_algorithms_client_to_server, "Server does not support not using compression"
     assert other_key.compression_algorithms_server_to_client[
              0] in self.compression_algorithms_server_to_client, "Server does not support not using compression"
+
+@dataclass
+class SSHMessageIgnorePacket(Packet):
+  """
+  byte      SSH_MSG_IGNORE
+  string    data
+  """
+  type = SSHConstants.SSH2_MSG_IGNORE
+  data: bytes
+
+  def payload(self) -> bytes:
+    return encode_str(self.data)
+
+  @classmethod
+  def request(cls, source: BytesReadWritable) -> Self:
+    return cls(request_str(source))

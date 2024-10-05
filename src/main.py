@@ -1,30 +1,17 @@
-import io
 import logging
 import os
 import sys
 from random import randint
-
-import rich.table
-import rich.table
-import rich.table
-import rich.table
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, AEADEncryptionContext, AEADDecryptionContext, modes
 from cryptography.hazmat.primitives.ciphers.algorithms import AES
 from rich.console import Console
 from rich.logging import RichHandler
-
-from src.bytes_io_read_writables import BytesIOReadWritable
-from src.bytes_read_writable import BytesReadWritable
-from src.common import hexdump, encode_uint32, request_str, \
-  request_mpint, create_hmac
-from src.constants import SSHConstants
+from src.common import *
+from src.packet import *
 from src.exchange_parameters import ExchangeParameters
 from src.group14_prime import GROUP14_PRIME
-from src.packet import SSHMessageChannelOpenPacket, SSHMessageChannelRequestPacket, SSHNewKeysPacket, \
-  SSHKexdhInitPacket, SSHMessageServiceRequestPacket, SSHMessageUserAuthRequestPacket, SSHMessageChannelDataPacket, \
-  SSHMessageGlobalRequestPacket, SSHMessageRequestFailurePacket, SSHMessageChannelOpenConfirmationPacket, \
-  SSHKEXInitPacket
+from src.packet import SSHKexdhInitPacket
 from src.ssh_packet import SSHPacket
 from src.ssh_socket_wrapper import SSHSocketWrapper
 from src.version import SSHVersion
@@ -98,7 +85,7 @@ class SSHClient:
     expect_markus = True
     if expect_markus:
       print(self.s.recv_packet())
-    self.s.send_packet(SSHPacket.create_from_bytes(b'\x02\x00\x00\x00\x06markus'))
+    self.s.send_packet(SSHMessageIgnorePacket(b'markus'))
     self.request_service('ssh-userauth')
     self.password_auth()
     chan = self.open_session_channel(0)
@@ -191,7 +178,8 @@ class SSHClient:
   def perform_dh_key_exchange(self):
     """Run diffie-hellman-group14-sha256 kex"""
     public_key_bytes = self.generate_local_keys()
-    self.send_local_keys(public_key_bytes)
+    self.s.send_packet(SSHKexdhInitPacket(public_key_bytes))
+    self.logger.info(f'Sent SSH_MSG_KEXDH_INIT')
     server_public_key = self.receive_remote_keys()
     self.expect_new_keys()
     self.derive_shared_key(server_public_key)
@@ -205,7 +193,8 @@ class SSHClient:
     self.s.mac_applicator_c2s = self.mac_applicator_c2s
 
   def expect_new_keys(self):
-    assert self.s.recv_packet().payload == SSHConstants.SSH2_MSG_NEWKEYS.to_bytes(), "Server did not send new keys"
+    new_keys = SSHNewKeysPacket().from_ssh_packet(self.s.recv_packet())
+    self.logger.info(f'New keys: {new_keys}')
     # Send the new keys message
     self.s.send_packet(SSHNewKeysPacket())
     self.logger.info("Habemus New Keys!")
@@ -242,17 +231,11 @@ class SSHClient:
 
   def receive_remote_keys(self):
     self.logger.info(f'waiting for server response')
-    # 3. Receive the server's public key
-    server_payload = self.s.recv_packet().payload
-    parse_server_payload = BytesIOReadWritable(io.BytesIO(server_payload))
-    assert parse_server_payload.recv(1) == bytes([SSHConstants.SSH2_MSG_KEXDH_REPLY])
-
-    self.exchange_parameters.k_s = self.parse_server_public_key(parse_server_payload)
-
-    self.exchange_parameters.f = request_mpint(parse_server_payload)
+    server_packet = self.s.recv_packet()
+    kexdh_reply_packet = SSHMessageKexdhReplyPacket.from_ssh_packet(server_packet)
+    self.exchange_parameters.k_s = kexdh_reply_packet.server_public_host_key
+    self.exchange_parameters.f = kexdh_reply_packet.f
     self.logger.info(f'Server f value:\n{hexdump(self.exchange_parameters.f)}')
-    server_signature = self.request_server_signature(parse_server_payload)
-    # The server signature is used to verify the server's public key authenticity
     return self.exchange_parameters.f
 
   def generate_local_keys(self):
@@ -272,43 +255,6 @@ class SSHClient:
     self.logger.info(f'E: {self.exchange_parameters.e}\n{hexdump(self.exchange_parameters.e)}')
     # Add sign bit
     return self.exchange_parameters.e_bytes
-
-  def request_server_signature(self, server_payload: BytesReadWritable):
-    hash_h = request_str(server_payload)
-    hash_h_b = BytesIOReadWritable(io.BytesIO(hash_h))
-    algorithm = request_str(hash_h_b)
-    signature = request_str(hash_h_b)
-    table = rich.table.Table(title="Server Signature", highlight=True)
-    table.add_column("Field", overflow="fold")
-    table.add_column("Value", overflow="fold")
-    table.add_row("Algorithm", repr(algorithm))
-    table.add_row("Signature", repr(signature))
-    table.add_row("Trailing", repr(hash_h_b.recv(9999999)))
-    console.print(table)
-    return hash_h + algorithm + signature
-
-  def parse_server_public_key(self, parse_server_payload: BytesReadWritable):
-    server_public_key = request_str(parse_server_payload)
-    server_public_key_b = BytesIOReadWritable(io.BytesIO(server_public_key))
-    pk_type = request_str(server_public_key_b)
-    assert pk_type == b'ssh-rsa'
-    e = request_mpint(server_public_key_b)
-    pk_value = request_mpint(server_public_key_b)
-    table = rich.table.Table(title="Server Public Key", highlight=True)
-    table.add_column("Field", overflow="fold")
-    table.add_column("Value", overflow="fold")
-    table.add_row("Type", repr(pk_type))
-    table.add_row("E", repr(e))
-    table.add_row("Value", repr(pk_value))
-    table.add_row("Value hexdump", hexdump(pk_value))
-    table.add_row("Trailing", repr(server_public_key_b.recv(9999)))
-    console.print(table)
-    # Discard all extra info
-    return server_public_key
-
-  def send_local_keys(self, public_key_bytes: bytes):
-    self.s.send_packet(SSHKexdhInitPacket(public_key_bytes))
-    self.logger.info(f'Sent SSH_MSG_KEXDH_INIT')
 
   def _exchange_versions(self) -> None:
     """Exchange SSH versions with the remote server (Step 1)"""
