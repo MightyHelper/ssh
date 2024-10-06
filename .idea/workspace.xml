@@ -4,26 +4,48 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b0a1405d-3483-4e83-8a32-022819cff9dd" name="Changes" comment="" />
+    <list default="true" id="ecf21724-1386-48d4-b9e8-7f37e7d1cc9f" name="Changes" comment="Minor refactor">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report/informe-TP3-Castinelli-Williamson.typ" beforeDir="false" afterPath="$PROJECT_DIR$/report/informe-TP3-Castinelli-Williamson.typ" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
 }</component>
-  <component name="ProjectId" id="2mfhSJPpjSBnpw1zzlerLmcNRpD" />
+  <component name="ProjectId" id="2mNzkP46a1lbkaR8LXs3HTpPF5k" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Python.main.executor": "Run",
+    "Python.main.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "report",
     "ignore.virus.scanning.warn.message": "true",
@@ -35,6 +57,41 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="\\wsl.localhost\Ubuntu\disk\disk01\GitHub\ssh\src" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ssh" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="true" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -46,26 +103,170 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b0a1405d-3483-4e83-8a32-022819cff9dd" name="Changes" comment="" />
-      <created>1727473543545</created>
+      <changelist id="ecf21724-1386-48d4-b9e8-7f37e7d1cc9f" name="Changes" comment="" />
+      <created>1726931966807</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1727473543545</updated>
-      <workItem from="1727473550025" duration="1304000" />
-      <workItem from="1727880037716" duration="25162000" />
-      <workItem from="1727926026027" duration="2054000" />
-      <workItem from="1727968255772" duration="5386000" />
-      <workItem from="1728052042709" duration="926000" />
-      <workItem from="1728061629308" duration="230000" />
-      <workItem from="1728070567309" duration="3038000" />
-      <workItem from="1728080493766" duration="2975000" />
+      <updated>1726931966807</updated>
+      <workItem from="1726931968345" duration="11761000" />
+      <workItem from="1727215263766" duration="13753000" />
+      <workItem from="1727803230207" duration="30164000" />
+      <workItem from="1727895331341" duration="16858000" />
+      <workItem from="1728000606415" duration="39034000" />
     </task>
+    <task id="LOCAL-00001" summary="Work on dh kex">
+      <option name="closed" value="true" />
+      <created>1727224555383</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1727224555383</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Work on dh kex">
+      <option name="closed" value="true" />
+      <created>1727227303545</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1727227303545</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add sample captures">
+      <option name="closed" value="true" />
+      <created>1727227442312</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1727227442312</updated>
+    </task>
+    <task id="LOCAL-00004" summary="save point">
+      <option name="closed" value="true" />
+      <created>1727823663378</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1727823663379</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Working hash">
+      <option name="closed" value="true" />
+      <created>1727832748553</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1727832748553</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Working sometimes">
+      <option name="closed" value="true" />
+      <created>1727908832155</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1727908832155</updated>
+    </task>
+    <task id="LOCAL-00007" summary="MARKUS">
+      <option name="closed" value="true" />
+      <created>1727909134515</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1727909134515</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Working on mac">
+      <option name="closed" value="true" />
+      <created>1728000719979</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1728000719979</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Working unidirectional mac">
+      <option name="closed" value="true" />
+      <created>1728005530351</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1728005530351</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Working bidi mac">
+      <option name="closed" value="true" />
+      <created>1728009316406</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1728009316406</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Service request accepted">
+      <option name="closed" value="true" />
+      <created>1728013161256</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1728013161256</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Clean up">
+      <option name="closed" value="true" />
+      <created>1728014465301</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1728014465301</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Working exec request - but strange response">
+      <option name="closed" value="true" />
+      <created>1728017778161</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1728017778161</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Suuport decoding multiple stacked pacages">
+      <option name="closed" value="true" />
+      <created>1728043571742</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1728043571742</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Migrate kex_init_packet.py">
+      <option name="closed" value="true" />
+      <created>1728088581440</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1728088581440</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Minor refactor">
+      <option name="closed" value="true" />
+      <created>1728090038747</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1728090038747</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Work on dh kex" />
+    <MESSAGE value="Add sample captures" />
+    <MESSAGE value="save point" />
+    <MESSAGE value="Working hash" />
+    <MESSAGE value="Working sometimes" />
+    <MESSAGE value="MARKUS" />
+    <MESSAGE value="Working on mac" />
+    <MESSAGE value="Working unidirectional mac" />
+    <MESSAGE value="Working bidi mac" />
+    <MESSAGE value="Service request accepted" />
+    <MESSAGE value="Clean up" />
+    <MESSAGE value="Working exec request - but strange response" />
+    <MESSAGE value="Suuport decoding multiple stacked pacages" />
+    <MESSAGE value="Migrate kex_init_packet.py" />
+    <MESSAGE value="Minor refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor refactor" />
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ssh$main.coverage" NAME="main Coverage Results" MODIFIED="1728052887688" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/ssh$main.coverage" NAME="main Coverage Results" MODIFIED="1728085423101" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
