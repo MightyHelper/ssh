@@ -89,9 +89,9 @@ Es un proceso por el cual se establece una conexión segura entre un cliente y u
 + Respuesta de DH.
 + Nuevas Claves (NewKeys).
 = El protocolo
-== Intercambio de Versiones#footnote[RFC4253-4.2]
+== Intercambio de Versiones (@rfcTransport Sección 4.2)
 
-=== Cadena de Version#footnote[RFC4253-4.2]
+=== Cadena de Version (@rfcTransport Sección 4.2)
 La cadena de versión de un participante en la comunicación se encuentra en el siguiente formato:
 
 ```python
@@ -99,7 +99,7 @@ La cadena de versión de un participante en la comunicación se encuentra en el 
 ```
 
 Con esta cadena en este formato ambos participantes podrán intercambiar la versión del protocolo y la versión de software que están utilizando.
-Siempre deben terminar con CRLF#footnote[CRLF es un `\r` seguido de `\n`] @ietfRFC4253.
+Siempre deben terminar con CRLF#footnote[CRLF es un `\r` seguido de `\n`] @rfcConnection.
 
 Ambas partes, *cliente* y *servidor* deben enviar sus cadenas de versión. Las cuales llamaremos $V_C$ a la cadena de version del *cliente* y $V_S$
 a la del *servidor*.
@@ -111,7 +111,7 @@ a la del *servidor*.
 
 En la @version-exchange podemos observar como enviamos nuestra versión y recibimos la versión del servidor.
 
-=== Protocolo binario de paquetes
+=== Protocolo binario de paquetes@rfcConnection
 
 Cada paquete se encuentra en el siguiente formato:
 #unb[
@@ -130,6 +130,9 @@ Donde cada parte representa:
 - *random_padding*: padding de longitud arbitraria, para que la longitud total (packet_length + padding_length + payload + random_padding) sea un múltiplo de 8#footnote[O multiplo del tamaño de bloque del algoritmo de cifrado si este esta en efecto], el padding tiene que ser como mínimo de 4 y máximo de 255. Además sirve para introducr ruido al mensaje, confundiendo a receptores ilegítimos de la comunicación.
 - *MAC*: Código de Autorización de Mensajes, si se negoció la autenticación de mensajes, este campo contiene los bytes de MAC. Inicialmente el algoritmo de MAC es `none`. 
 
+El como se encodean varios de los tipos de datos como `uint32` `string` `mpint` esta detallado en @rfcArch.
+
+Los numeros asignados a los tipo de mensaje estan detallados en @rfcConstants. 
 
 ==== MAC
 
@@ -139,7 +142,7 @@ Este código es un algoritmo de hash del contenido del mensaje no encriptado, co
 
 Esto es extremadamente útil en evitar replay attacks, entre otros.
 
-== Intercambio de algoritmos (KEXInit)#footnote[RFC4253-7.1] <kex-init>
+== Intercambio de algoritmos (KEXInit) (@rfcTransport Sección 7.1) <kex-init>
 
 SSH es un protocolo muy versátil, permite utilizar múltiples algoritmos para cada parte de la comunicación.
 
@@ -162,7 +165,7 @@ Para forzar el uso de ciertos algoritmos y simplificar la implementación, envia
 
 En la @server-kex-init se puede ver la respuesta del servidor, mostrando todos los algoritmos que soporta para cada categoria.
 
-El protocolo SSH (RFC4253) define que se usa el primero en comun, llendo en orden de izquierda a derecha.
+El protocolo SSH (@rfcConnection) define que se usa el primero en comun, llendo en orden de izquierda a derecha.
 
 Es posible que en cada direccion de la comunicación #footnote[cliente a servidor, servidor a cliente] se usen algirtmos distintos.
 
@@ -170,7 +173,7 @@ En este momento, hambos cliente y servidor saben que algoritmo van a usar para c
 
 A los *payload* de KEX Init que envian el *cliente* y el *servidor* seran utilizados luego y los llamaremos $I_C$ y $I_S$ respectivamente.
 
-== Intercambio de claves Diffie Hellman#footnote[RFC4253-8]
+== Intercambio de claves Diffie Hellman(@rfcConnection Sección 8)
 
 Nosotros, elegimos usar el algoritmo de `diffie-hellman-group14-sha256` como algoritmo de intercambio.
 
@@ -187,7 +190,7 @@ Como funciona esto?
 
 1. Se acuerdan $p$ y $g$. $p$ es un primo publico muy grande, y $g$ su generador.
 
-Como estamos usando group14, usamos el primos del grupo 14, que esta definido en RFC3526-3.
+Como estamos usando group14, usamos el primos del grupo 14, que esta definido en @rfcDhGroups\-3.
 
 C (cliente) genera un número aleatorio $x$ entre $1$ y $q$#footnote[$q$ hace referencia al orden del subgrupo, que en la práctica, no se necesita calcular explícitamente, es aproximadamente $floor(p / 2)$] y computa el valor:
 
@@ -273,7 +276,7 @@ Para probar el cliente, con el servidor de OpenSSH, es posible ejecutarlo en mod
 
 En la @markus-exchange se puede observar como tambien enviamos un paquete ignorable con `markus` al servidor para verificar que no produce errores.
 
-== Solicitud de servicio#footnote[RFC4252]
+== Solicitud de servicio@rcfAuth
 
 Antes de proceder, requerimos que el servidor nos permita autenticar usuarios.
 
@@ -282,7 +285,7 @@ Antes de proceder, requerimos que el servidor nos permita autenticar usuarios.
   caption: [Solicitud de servicio `ssh-authuser`]
 )
 
-== Solicitud de Conexion#footnote[RFC4252]
+== Solicitud de Conexion@rcfAuth
 
 Una vez que tenemos permisos para autenticar, podemos solicitar una conexion
 
@@ -307,7 +310,7 @@ Una vez hecho esto, si la autenticación es exitosa, recibimos varios mensajes d
 
 Y estamos en posicion de enviar un comando
 
-== Ejecucion#footnote[RFC4254]
+== Ejecucion@rfcConnection
 
 #figure(
   image("images/exec-11.png"),
@@ -336,7 +339,6 @@ En @handshake-steps se puede observar los pasos y mensajes que intercambian el c
 
 #bibliography("refs.bib")
 
-Los RFC mencionados tienen links.
 ],[
 #figure(
   // image("./images/ssh-steps.svg", height: 100% - 15em),
