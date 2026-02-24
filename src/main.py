@@ -74,6 +74,7 @@ class SSHClient:
 
   def mac_applicator_c2s(self, data: bytes, offset: int | None = None) -> bytes:
     offset = offset if offset is not None else SSHPacket.local_to_remote_sequence_number
+    self.logger.info(f"Applying MAC #{offset} on \n{hexdump(data)}")
     seq_with_data = encode_uint32(offset) + data
     return create_hmac(self.exchange_parameters.mac_c2s, seq_with_data)
 
@@ -82,10 +83,10 @@ class SSHClient:
     self.logger.info('Connected to server')
     self._exchange_versions()
     self.my_key_exchange()
-    expect_markus = True
+    expect_markus = False
     if expect_markus:
       print(self.s.recv_packet())
-    self.s.send_packet(SSHMessageIgnorePacket(b'markus'))
+      self.s.send_packet(SSHMessageIgnorePacket(b'markus'))
     self.request_service('ssh-userauth')
     self.password_auth()
     chan = self.open_session_channel(0)
